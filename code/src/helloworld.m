@@ -1,5 +1,5 @@
 %% helloworld.m
-% Description: MATLAB code for MS8401 (MS, 2022 Spring)
+% Description: MATLAB code for MS8401 (2022 Spring)
 % Author: Guorui Wei (危国锐) (313017602@qq.com; weiguorui@sjtu.edu.cn)
 % Student ID: 120034910021
 % Created: 2022-04-19

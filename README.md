@@ -5,6 +5,15 @@
 - [课程主页](https://grwei.github.io/SJTU_2021-2022-2_MS8401/)  
 - [个人主页](https://grwei.github.io/)
 
+## Contents
+
+- [Homework 1]()
+
+## Resources
+
+- [SEA-MAT: Matlab Tools for Oceanographic Analysis](https://sea-mat.github.io/sea-mat/)
+- [M_Map: A mapping package for Matlab](https://www.eoas.ubc.ca/~rich/map.html)
+
 ## Contact information
 
 - Guorui Wei (危国锐)

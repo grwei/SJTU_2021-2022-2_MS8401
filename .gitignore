@@ -1,3 +1,6 @@
+#
+*.en*
+
 # Prerequisites
 *.d
 
