@@ -7,12 +7,13 @@
 
 ## Contents
 
-- [Homework 1]()
+- [Homework 1](hw/hw1_危国锐_120034910021.pdf)
 
 ## Resources
 
 - [SEA-MAT: Matlab Tools for Oceanographic Analysis](https://sea-mat.github.io/sea-mat/)
 - [M_Map: A mapping package for Matlab](https://www.eoas.ubc.ca/~rich/map.html)
+- [Climate Data Toolbox for Matlab](https://github.com/chadagreene/CDT)
 
 ## Contact information
 
