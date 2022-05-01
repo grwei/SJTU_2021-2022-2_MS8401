@@ -1,4 +1,4 @@
-# SJTU_2021-2022-2_MS8401
+# SJTU_2021-2022-2_MS8401 (project)
 
 研-MS8401-44000-M01-海洋环境数据分析 (2022 Spring)
 
@@ -7,13 +7,7 @@
 
 ## Contents
 
-### Homework
-
 - [Homework 1](hw/hw1_危国锐_120034910021.pdf)
-
-### Project
-
-- [`test0.m`](project/src/test0.m)
 
 ## Resources
 
