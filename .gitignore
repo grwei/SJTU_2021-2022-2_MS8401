@@ -1,5 +1,6 @@
 #
 *.en*
+*.asv
 
 # Prerequisites
 *.d
