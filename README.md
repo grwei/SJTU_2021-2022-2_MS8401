@@ -13,7 +13,8 @@
 
 ### Project
 
-- [`test0.m`](project/src/test0.m)
+- [`report.pdf`](project/doc/report.pdf)
+  - [`test0.m`](project/src/test0.m)
 
 ## Resources
 

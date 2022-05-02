@@ -7,11 +7,11 @@
 
 ### Homework
 
-- [Homework 1](https://grwei.github.io/SJTU_2021-2022-2_MS8401/hw1_危国锐_120034910021.pdf)
+- [Homework 1](https://grwei.github.io/SJTU_2021-2022-2_MS8401/homework/hw1_危国锐_120034910021.pdf)
 
 ### Project
 
-- [pre-experiment](https://grwei.github.io/SJTU_2021-2022-2_MS8401/rep_untitled_exp0.pdf)
+- [pre-experiment](https://grwei.github.io/SJTU_2021-2022-2_MS8401/project/rep_untitled_exp0.pdf)
 
 - [`test0.m`](https://github.com/grwei/SJTU_2021-2022-2_MS8401/tree/main/project/src/test0.m)
 
