@@ -3,6 +3,7 @@
 *.asv
 project/inc/CDT-master/cdt/cdt_data
 *.zip
+~$*.doc*
 
 # Prerequisites
 *.d

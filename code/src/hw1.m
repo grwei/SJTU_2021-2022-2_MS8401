@@ -3,9 +3,10 @@
 % Author: Guorui Wei (危国锐) (313017602@qq.com; weiguorui@sjtu.edu.cn)
 % Student ID: 120034910021
 % Created: 2022-04-29
-% Last modified: 2022-04-30
-% Toolbox: [1] [M_Map: A mapping package for Matlab](https://www.eoas.ubc.ca/~rich/map.html)
-%          [2] [Climate Data Tools for Matlab](https://github.com/chadagreene/CDT)
+% Last modified: 2022-05-13
+% Toolbox: [T1] [M_Map: A mapping package for Matlab](https://www.eoas.ubc.ca/~rich/map.html)
+%          [T2] [Climate Data Tools for Matlab](https://github.com/chadagreene/CDT)
+% Data:    [D1] [NOAA Extended Reconstructed Sea Surface Temperature (SST) V5](https://psl.noaa.gov/data/gridded/data.noaa.ersst.v5.html)
 
 %% Initialize project
 
@@ -82,8 +83,8 @@ ylabel(t_TCL,"year","Interpreter",'latex')
 [~,t_title_s] = title(t_TCL,"\bf Monthly Mean SST $2^{\circ}\rm{S}$ to $2^{\circ}\rm{N}$ Average","Guorui Wei 120034910021",'Interpreter','latex');
 set(t_title_s,'FontSize',8);
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_1.emf",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_1.png",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_1.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_1.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
 
 %% Fig.2 & 3
 
@@ -102,21 +103,21 @@ for k = 1:size(sst,3)
     sst_tr(:,:,k) = sst_tr_coeff * k;
 end
 sst_climatology = climatology(sst,time_month,'monthly','dim',3,'detrend','linear','full'); % y_climatology = y_0 + y_season
-sst_var = sst - sst_tr - sst_climatology; % interannual variability (+ noise)
+sst_var = deseason(detrend3(sst,'omitnan'),time_month); % interannual variability (+ noise)
 
 % Fig.2
 figure('Name',"Fig.2 (El_nino)")
 t_TCL = tiledlayout(2,1,"TileSpacing","tight","Padding","tight");
 t_TCL = fig2(t_TCL,TF_lon_range,TF_lat_range,TF_time_El_nino,sst_var,sst,lon,lat,28:30,"Dec 1997");
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_2.emf",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_2.png",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_2.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_2.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
 
 % Fig.3
 figure('Name',"Fig.3 (La_nina)")
 t_TCL = tiledlayout(2,1,"TileSpacing","tight","Padding","tight");
 t_TCL = fig2(t_TCL,TF_lon_range,TF_lat_range,TF_time_La_nina,sst_var,sst,lon,lat,28:30,"Dec 1998");
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_3.emf",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_3.png",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_3.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_3.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
 
 %% Fig.4
 
@@ -132,16 +133,16 @@ figure('Name',"Fig.4(a) (variance)")
 t_TCL = tiledlayout(1,1,"TileSpacing","tight","Padding","tight");
 t_TCL = fig4(t_TCL,lon,lat,TF_lon_range,TF_lat_range,sst_var_Va,[-0.2,2.5],"\bf Fig.4(a) Variance");
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_4a.emf",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_4a.png",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_4a.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_4a.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
 
 %%% Fig.4(b)
 figure('Name',"Fig.4(b) (skewness)")
 t_TCL = tiledlayout(1,1,"TileSpacing","tight","Padding","tight");
 t_TCL = fig4(t_TCL,lon,lat,TF_lon_range,TF_lat_range,sst_var_Sk,[-1.5,1.5],"\bf Fig.4(b) Skewness");
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_4b.emf",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
-exportgraphics(t_TCL,"..\\doc\\fig\\hw1_Fig_4b.png",'Resolution',600,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_4b.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
+exportgraphics(t_TCL,"..\\doc\\fig\\hw1\\hw1_Fig_4b.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb')
 
 %% local functions
 
@@ -151,8 +152,8 @@ function [] = init_env()
 % Initialize environment
 %
     % set up project directory
-    if ~isfolder("../doc/fig/")
-        mkdir ../doc/fig/
+    if ~isfolder("../doc/fig/hw1")
+        mkdir ../doc/fig/hw1
     end
     % configure searching path
     mfile_fullpath = mfilename('fullpath'); % the full path and name of the file in which the call occurs, not including the filename extension.
