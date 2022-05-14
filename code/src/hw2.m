@@ -152,7 +152,7 @@ end
 
 %% 5. the North Pacific Ocean (20°N ~ 65°44'N, 99°10'E -> 180°+78°08'E)
 
-TF_lon_range = lon > 134 & lon < 276;
+TF_lon_range = lon > 134 & lon < 261;
 TF_lat_range = lat > 20 & lat < 67;
 TF_time_range = datetime(1900,1,1) < time_month & time_month < datetime(2020,12,30);
 
