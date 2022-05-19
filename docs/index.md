@@ -15,6 +15,19 @@
 - [pre-experiment](https://grwei.github.io/SJTU_2021-2022-2_MS8401/project/report.pdf)
   - [`test0.m`](https://github.com/grwei/SJTU_2021-2022-2_MS8401/tree/main/project/src/test0.m)
 
+## Resources
+
+### Textbook
+
+- [Data Analysis Methods in Physical Oceanography](https://doi.org/10.1016/C2010-0-66362-0) (Richard E. Thomson and William J. Emery, 2014)
+- [Statistical Methods in the Atmospheric Sciences](https://doi.org/10.1016/C2017-0-03921-6) (Daniel S. Wilks, 2020)
+
+### Toolbox
+
+- [SEA-MAT: Matlab Tools for Oceanographic Analysis](https://sea-mat.github.io/sea-mat/)
+- [M_Map: A mapping package for Matlab](https://www.eoas.ubc.ca/~rich/map.html)
+- [Climate Data Toolbox for Matlab](https://github.com/chadagreene/CDT)
+
 ## Contact Information
 
 - Guorui Wei (危国锐)

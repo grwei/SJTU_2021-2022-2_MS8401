@@ -8,6 +8,7 @@
 ## Contents
 
 - [Homework 1](hw/hw1_危国锐_120034910021.pdf)
+- [Homework 2](hw/hw2_危国锐_120034910021.pdf)
 
 ## Resources
 
