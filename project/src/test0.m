@@ -3,7 +3,7 @@
 % Author: Guorui Wei (危国锐) (313017602@qq.com; weiguorui@sjtu.edu.cn)
 % Student ID: 120034910021
 % Created: 2022-05-01
-% Last modified: 2022-
+% Last modified: 2022-06-20
 % Reference: [1] [CDT::season::How this function works](https://www.chadagreene.com/CDT/season_documentation.html#16)
 %            [2] [CDT::season::Seasons vs Climatology](https://www.chadagreene.com/CDT/season_documentation.html#17)
 %            [3] [CDT::season::Other ways to define seasonality](https://www.chadagreene.com/CDT/season_documentation.html#19)
@@ -26,26 +26,26 @@ n_years = 60;   % total number of years
 T_season = 1;   % [year] the cycle of anomalies associated with the typical seasonal (aka annual) cycle or of a time series.
 T_var = 3;      % [year] the cycle of interannual variability
 T_noise = 1/8;  % [year] the cycle of noise
-% Note[2]: In general, CDT[T2] assumes that a multi-year record of a variable sampled  at subannual resolution can described by
+% Note[2]: In general, CDT[T2] assumes that a multi-year record of a variable sampled at subannual resolution can described by
 % y = y_trend + y_climatology + y_var + y_noise, where
 % y_climatology = y_0 + y_season, such that mean(y_season) = 0.
-y_base = 2;     % baseline
-A_season = 1;   % amplitude of seasonal (aka annual) signal (climatology?)
+y_base = 2;      % baseline
+A_season = 1;    % amplitude of seasonal (aka annual) signal (climatology?)
 A_var = .25;     % amplitude of interannual variability
 A_noise = .0;    % amplitude of noise
 % polynomial coefficients ordered by descending powers
-y_trend_poly_coeff = [0.2*A_var/T_var,0];         % Case-1- slow linear trend, without noise
-% y_trend_poly_coeff = [6e-4,0*A_var/T_var,0];      % Case-2- slow quadratic trend, without noise
+% y_trend_poly_coeff = [0.2*A_var/T_var,0];         % Case-1- slow linear trend, without noise
+y_trend_poly_coeff = [5e-4,0*A_var/T_var,0];      % Case-2- slow quadratic trend, without noise
 % y_trend_poly_coeff = [3*A_var/T_var,0];           % Case 3- fast linear trend, without noise
 % y_trend_poly_coeff = [5e-3,0*A_var/T_var,0];      % Case 4- fast quadratic trend, without noise
 % y_trend_poly_coeff = [0.2*A_var/T_var,0];A_noise = .4;        % Case 5- slow linear trend, with noise added
-y_trend_poly_coeff = [300*A_var/T_var,0];
+% y_trend_poly_coeff = [300*A_var/T_var,0];
 trend_n = length(y_trend_poly_coeff) - 1;           % polynomial degree of trend
 
 %% Simulation initiation
 
 t = linspace(0,n_years-1/12,n_years*Fs).'+1/24;     % [year]
-num_months = discretize(t,0:1/12:n_years+1/12);     % number of months.
+num_months = discretize(t,0:1/12:n_years+1/12);     % number of months (1,2,...).
 name_months = mod(num_months,12);
 name_months(name_months == 0) = 12;                 % name of month. 1 = Jan, ..., 12 = Dec.
 y_trend = polyval(y_trend_poly_coeff,t);            % the long-term [trend](https://www.chadagreene.com/CDT/trend_documentation.html)
@@ -89,7 +89,7 @@ y = y_base + y_trend + y_season + y_var + y_noise;  % original data
 %       Default is 'linear'.
 %   Remark: If a linear least squares trend is chosen, the "variability"
 %       (with "noise") also has zero arithmetic mean, since "anomaly" is
-%       zero arithmetic mean, and the fact that linear regression model
+%       zero arithmetic mean, and the fact that linear LSE regression model
 %       pass the mean point of sample.
 % Question: What would happen if a non-linear trend is chosen?
 
@@ -101,15 +101,20 @@ y = y_base + y_trend + y_season + y_var + y_noise;  % original data
 y_0_B = mean(climatology_B_cat);            % the long-term mean
 season_B = climatology_B - y_0_B;           % (entire series) seasonal anomaly for the entire time series
 
-%%% Step-2  Determines the "trend" of "anomaly"
+%%% Step-2  Determines the linear "trend" of "anomaly"
 
-[trend_B_p_sc,S_B,mu_B] = polyfit(t,anomalies_B,trend_n);
+[trend_B_p_sc,S_B,mu_B] = polyfit(t,anomalies_B,1);
 trend_B_p = poly_sc2ori(trend_B_p_sc,mu_B);
 trend_B = polyval(trend_B_p_sc,t,[],mu_B);
 
 %%% Step-3  Determines the "variability" (with "noise", expected)
 
 variability_plus_noise_B = anomalies_B - trend_B;
+
+% DEBUG: detrend again?
+[trend_again_p_sc,~,mu_again] = polyfit(t,variability_plus_noise_B,1);
+trend_again_p = poly_sc2ori(trend_again_p_sc,mu_again);
+sprintf("\n Algo.B trend again: %s\n",num2str(trend_again_p))
 
 %% Simulation - Algorithm A ("climatology" determined *after* detrending)
 % Step-1  Determines the "trend" of the orginal data.
@@ -135,9 +140,14 @@ variability_plus_noise_B = anomalies_B - trend_B;
 
 %%% Step-1  Determines the "trend" of the orginal data.
 
-[trend_A_p_sc,S_A,mu_A] = polyfit(t,y,trend_n);
+[trend_A_p_sc,S_A,mu_A] = polyfit(t,y,1);
 trend_A_p = poly_sc2ori(trend_A_p_sc,mu_A);
 trend_A = polyval(trend_A_p_sc,t,[],mu_A);
+
+% DEBUG: detrend again?
+[trend_again_p_sc,S_again,mu_again] = polyfit(t,y-trend_A,1);
+trend_again_p = poly_sc2ori(trend_again_p_sc,mu_again);
+sprintf("\n Algo.A trend again: %s\n",num2str(trend_again_p))
 
 %%% Step-2  Determines the "climatology" and "anomaly" ("variability") of
 % the *detrended* data.
@@ -170,8 +180,8 @@ xlabel(t_axes,"$t$ (year)",FontSize=10,Interpreter="latex");
 ylabel(t_axes,"$y$","FontSize",10,"Interpreter","latex");
 title(t_axes,sprintf("\\bf original data $(f_{\\rm s} = %g,\\,N = %g)$",Fs,length(y)),"Interpreter","latex")
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_1_original_data.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_1_original_data.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_1_original_data.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_1_original_data.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
 
 %% Fig.2(b) (Algorithm B: "climatology" determined *before* detrending)
 % y = y_climatology + (y_trend + (y_varibility + noise))
@@ -189,13 +199,14 @@ t_plot_y_B_var = plot(t_axes,t,variability_plus_noise_B,'-', ...
     "DisplayName",sprintf("$y_{\\rm{B,variability + noise}}$ $(\\rm{mean} = %g)$",mean(variability_plus_noise_B,"omitnan")));
 hold off
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'latex',"FontSize",10,'Box','off','TickDir','out');
+% xlim(t_axes,[0,6]);
 legend(t_axes,"Location",'best','Interpreter','latex',"Box","off",'FontSize',10);
 xlabel(t_axes,"$t$ (year)",FontSize=10,Interpreter="latex");
 ylabel(t_axes,"$y_{\rm{B}}$","FontSize",10,"Interpreter","latex");
 title(t_axes,'\bf Algorithm B: climatology determined {\it before} detrending',"Interpreter","latex")
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_2b_Algorithm_B.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_2b_Algorithm_B.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_2b_Algorithm_B.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_2b_Algorithm_B.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
 
 %% Fig.2(a) (Algorithm A: "climatology" determined *after* detrending)
 % y = y_trend + (y_climatology + (y_varibility + noise))
@@ -213,13 +224,14 @@ t_plot_y_A_var = plot(t_axes,t,variability_plus_noise_A,'-', ...
     "DisplayName",sprintf("$y_{\\rm{A,variability + noise}}$ $(\\rm{mean} = %g)$",mean(variability_plus_noise_A,"omitnan")));
 hold off
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'latex',"FontSize",10,'Box','off','TickDir','out');
+% xlim(t_axes,[0,6]);
 legend(t_axes,"Location",'best','Interpreter','latex',"Box","off",'FontSize',10);
 xlabel(t_axes,"$t$ (year)",FontSize=10,Interpreter="latex");
 ylabel(t_axes,"$y_{\rm{A}}$","FontSize",10,"Interpreter","latex");
 title(t_axes,'\bf Algorithm A: climatology determined {\it after} detrending',"Interpreter","latex")
 %
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_2a_Algorithm_A.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_2a_Algorithm_A.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_2a_Algorithm_A.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_2a_Algorithm_A.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
 
 %% Fig.3 (difference between output and original)
 
@@ -234,6 +246,7 @@ t_plot_diff_season_B = plot(t_axes_diff_season,t,(season_B-y_season)/A_season,'-
     "DisplayName",'$(y_{\rm B,season} - y_{\rm season})/A_{\rm season}$');
 hold off
 set(t_axes_diff_season,"YDir",'normal',"TickLabelInterpreter",'latex',"FontSize",10,'Box','off','TickDir','out');
+xlim(t_axes_diff_season,[0,6]);
 legend(t_axes_diff_season,"Location",'best','Interpreter','latex',"Box","off",'FontSize',10);
 % xlabel(t_axes_diff_season,"$t$ (year)",FontSize=10,Interpreter="latex");
 ylabel(t_axes_diff_season,"$y_{\rm{season}}$","FontSize",10,"Interpreter","latex");
@@ -247,6 +260,7 @@ t_plot_diff_var_B = plot(t_axes_diff_var,t,(variability_plus_noise_B-y_var)/A_va
     "DisplayName",'$(y_{\rm{B,variability}} - y_{\rm{variability}})/A_{\rm var}$');
 hold off
 set(t_axes_diff_var,"YDir",'normal',"TickLabelInterpreter",'latex',"FontSize",10,'Box','off','TickDir','out');
+% xlim(t_axes_diff_var,[0,3]);
 legend(t_axes_diff_var,"Location",'best','Interpreter','latex',"Box","off",'FontSize',10);
 % xlabel(t_TCL,"$t$ (year)",FontSize=10,Interpreter="latex");
 ylabel(t_axes_diff_var,"$y_{\rm variability}$","FontSize",10,"Interpreter","latex");
@@ -254,8 +268,8 @@ title(t_axes_diff_var,'\bf variability',"Interpreter","latex")
 %
 title(t_TCL,"\bf difference between output and original","Interpreter","latex")
 xlabel(t_TCL,"$t$ (year)",FontSize=10,Interpreter="latex");
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_3_diff_output_original.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
-exportgraphics(t_TCL,"..\\doc\\fig\\Fig_3_diff_output_original.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_3_diff_output_original.emf",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+exportgraphics(t_TCL,"..\\doc\\fig\\test0\\Fig_3_diff_output_original.png",'Resolution',800,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
 
 %% local functions
 
@@ -265,8 +279,8 @@ function [] = init_env()
     % Initialize environment
     %
     % set up project directory
-    if ~isfolder("../doc/fig/")
-        mkdir ../doc/fig/
+    if ~isfolder("../doc/fig/test0/")
+        mkdir ../doc/fig/test0/
     end
     % configure searching path
     mfile_fullpath = mfilename('fullpath'); % the full path and name of the file in which the call occurs, not including the filename extension.
