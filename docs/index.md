@@ -9,6 +9,7 @@
 
 - [Homework 1](https://grwei.github.io/SJTU_2021-2022-2_MS8401/homework/hw1_危国锐_120034910021.pdf)
 - [Homework 2](https://grwei.github.io/SJTU_2021-2022-2_MS8401/homework/hw2_危国锐_120034910021.pdf)
+- [Homework 3](https://grwei.github.io/SJTU_2021-2022-2_MS8401/homework/hw3_危国锐_120034910021.pdf)
 
 ### Project
 

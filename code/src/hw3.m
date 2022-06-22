@@ -4,9 +4,9 @@
 % Student ID: 120034910021
 % Created: 2022-06-18
 % Last modified: 2022-06-21
-% References: [1] https://paos.colorado.edu/research/wavelets/
+% References: [1] [A Practical Guide to WaveletAnalysis](https://paos.colorado.edu/research/wavelets/)
 % Toolbox:    [T2] [Climate Data Tools for Matlab](https://github.com/chadagreene/CDT)
-%             [T3] https://github.com/chris-torrence/wavelets
+%             [T3] [Wavelet Software](https://github.com/chris-torrence/wavelets)
 % Data:       [D1] [NOAA Extended Reconstructed Sea Surface Temperature (SST) V5](https://psl.noaa.gov/data/gridded/data.noaa.ersst.v5.html)
 
 %% Initialize project
@@ -45,7 +45,7 @@ var_Nino3_4_index = var(Nino3_4_index);
 [ac,lags] = xcorr(Nino3_4_index,Nino3_4_index,2,"normalized");
 alpha_ = (ac(lags == 1) + sqrt(ac(lags == 2)))/2;
 % alpha_ = 0.72;
-P_k = (1-alpha_^2)./(1+alpha_^2-2*alpha_*cos(2*pi*(0:length(Nino3_4_index)-1).'/length(Nino3_4_index)));
+P_k = (1-alpha_^2)./(1+alpha_^2-2*alpha_*cos(2*pi*(0:length(Nino3_4_index)-1).'/length(Nino3_4_index))); % [1,eq.(16)]
 
 %% 1. Perform spectrum analysis on the Niño3.4 SST anomaly index
 
@@ -88,7 +88,7 @@ xlim(t_axes,[-Inf,1/0.9]);
 ylim(t_axes,yl);
 xticks(t_axes,1./xtick_cycle);
 xticklabels(t_axes,string(xtick_cycle));
-xlabel(t_axes,"cycle (year)",FontSize=10,Interpreter="latex");
+xlabel(t_axes,"period (years)",FontSize=10,Interpreter="latex");
 ylabel(t_axes,"magnitude","FontSize",10,"Interpreter","latex");
 legend(t_axes,"Interpreter","latex","Box","off",'Location','best');
 title(t_axes,sprintf("\\bf DFT of Nino3.4 index"),"Interpreter","latex");
