@@ -23,6 +23,7 @@
 
 - [Data Analysis Methods in Physical Oceanography](https://doi.org/10.1016/C2010-0-66362-0) (Richard E. Thomson and William J. Emery, 2014)
 - [Statistical Methods in the Atmospheric Sciences](https://doi.org/10.1016/C2017-0-03921-6) (Daniel S. Wilks, 2020)
+- [Climate Time Series Analysis: Classical Statistical and Bootstrap Methods](https://doi.org/10.1007/978-3-319-04450-7) (Mudelsee, M., 2014)
 
 ### Toolbox
 

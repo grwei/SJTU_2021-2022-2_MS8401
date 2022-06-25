@@ -71,28 +71,38 @@ end
 %% compare algo A and B
 
 vari_diff = vari_B-vari_A;
-vari_diff_monthly_avg = zeros([size(vari_diff,1,2),12]);
+vari_diff_max = max(vari_diff,[],3,"omitnan");
+vari_diff_min = min(vari_diff,[],3,"omitnan");
+vari_diff_abs_max = max(abs(vari_diff),[],3,"omitnan");
 
+vari_diff_monthly_avg = zeros([size(vari_diff,1,2),12]);
 for i = 1:size(vari_diff,1)
     for j = 1:size(vari_diff,2)
         [~,~,vari_diff_monthly_avg(i,j,:)] = climatology_month(vari_diff(i,j,:),name_months);
     end
 end
 
-%% Create figure.
+%% Create figure: 1
 
 global_map(lon,lat,trend_A_coeff,"trend (Algorithm A)","trend_A.png","($^{\circ}\rm{C}$) / year",1);
 global_map(lon,lat,trend_B_coeff,"trend (Algorithm B)","trend_B.png","($^{\circ}\rm{C}$) / year",1);
 global_map(lon,lat,trend_B_coeff - trend_A_coeff,"swap-error: trend","swap_error_trend.png","($^{\circ}\rm{C}$) / year",1);
 global_map(lon,lat,sqrt(mean((vari_B-vari_A).^2,3,"omitnan")),"swap-error: variability (root-mean-square)","vari_err_RMS.png","$^{\circ}\rm{C}$",1);
+global_map(lon,lat,vari_diff_max,"swap-error: variability (max(B-A))","vari_err_max.png","$^{\circ}\rm{C}$",1);
+global_map(lon,lat,vari_diff_min,"swap-error: variability (min(B-A))","vari_err_min.png","$^{\circ}\rm{C}$",1);
+global_map(lon,lat,vari_diff_abs_max,"swap-error: variability (max(abs(B-A)))","vari_err_abs_max.png","$^{\circ}\rm{C}$",1);
 
-for i = 1:12
-    global_map(lon,lat,season_B_cat(:,:,i) - season_A_cat(:,:,i), ...
-        sprintf("swap-error: season (month %d)",i), ...
-        sprintf("swap_error_season_month%d.png",i),"$^{\circ}\rm{C}$",1);
-    global_map(lon,lat,vari_diff_monthly_avg(:,:,i), ...
-        sprintf("swap-error: variability (avg of month %d)",i), ...
-        sprintf("swap_error_vari_month%d.png",i),"$^{\circ}\rm{C}$",1);
+%% Create figure: 2
+
+if (0)
+    for i = 1:12
+        global_map(lon,lat,season_B_cat(:,:,i) - season_A_cat(:,:,i), ...
+            sprintf("swap-error: season (month %d)",i), ...
+            sprintf("swap_error_season_month%d.png",i),"$^{\circ}\rm{C}$",1);
+        global_map(lon,lat,vari_diff_monthly_avg(:,:,i), ...
+            sprintf("swap-error: variability (avg of month %d)",i), ...
+            sprintf("swap_error_vari_month%d.png",i),"$^{\circ}\rm{C}$",1);
+    end
 end
 
 %% local functions
@@ -283,8 +293,11 @@ function [] = global_map(lon,lat,data,fig_title,filename,unit_name,export_enable
     % BEGIN patch
     cl = caxis;
     if (cl(1) >= 0)
-    cl(1) = -cl(2)/10;
-    caxis(t_axes,cl)
+        cl(1) = -cl(2)/10;
+        caxis(t_axes,cl)
+    elseif (cl(2) <= 0)
+        cl(2) = -cl(1)/10;
+        caxis(t_axes,cl);
     end
     % END patch
     colormap(t_axes,cmocean('balance','pivot',0))

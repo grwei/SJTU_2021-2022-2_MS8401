@@ -35,7 +35,7 @@ A_var = .25;     % amplitude of interannual variability
 A_noise = .0;    % amplitude of noise
 % polynomial coefficients ordered by descending powers
 % y_trend_poly_coeff = [0.2*A_var/T_var,0];         % Case-1- slow linear trend, without noise
-y_trend_poly_coeff = [5e-4,0*A_var/T_var,0];      % Case-2- slow quadratic trend, without noise
+y_trend_poly_coeff = [1e-2,1*A_var/T_var,0];      % Case-2- slow quadratic trend, without noise
 % y_trend_poly_coeff = [3*A_var/T_var,0];           % Case 3- fast linear trend, without noise
 % y_trend_poly_coeff = [5e-3,0*A_var/T_var,0];      % Case 4- fast quadratic trend, without noise
 % y_trend_poly_coeff = [0.2*A_var/T_var,0];A_noise = .4;        % Case 5- slow linear trend, with noise added
