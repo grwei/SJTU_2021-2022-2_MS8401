@@ -14,6 +14,7 @@
 2. WMO 气候态定义([Chen, X., and T. Li, 2021](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2))：过去 30 年平均，每 10 年更新
 3. ([Chen, X., and T. Li, 2021](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2)) 认为非线性趋势影响大，是否因非线性趋势总增长量大？应控制变量。另，若非线性程度更高？
 4. ([Chen, X., and T. Li, 2021](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2)) 用有限差分近似二阶微分。若用更高阶的近似方法？
+5. [Introduction to Time Series and Forecasting](https://doi.org/10.1007/978-3-319-29854-2) (Peter J. Brockwell, Richard A. Davis, 2016) 第 1.5 节：(1) 先粗去 trend (P 点滑动平均，P 为 seasonal cycle），再简单平均求 seasonality；(2) 对 deseason 的原数据，重求 trend. [作为方案三：修正 trend! 对比方案一：若不修正，则 residue(anomaly) 中有 trend! (此处可用非参数趋势检验)]
 
 ## Resources
 
@@ -28,8 +29,12 @@
 - [An Improved Method for Defining Short-Term Climate Anomalies](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2) (2021)
   - [中文解读：一种新的气候异常定义方法及其应用](https://mp.weixin.qq.com/s/s5-IaYUFE5S5JdOQ75unYg)
 - [Optimal Estimation of the Climatological Mean](https://doi.org/10.1175/2009JCLI2944.1) (2010)
+- Brockwell, P.J., Davis, R.A. (2016). Introduction. In: Introduction to Time Series and Forecasting. Springer Texts in Statistics. Springer, Cham. [https://doi.org/10.1007/978-3-319-29854-2_1](https://doi.org/10.1007/978-3-319-29854-2_1)
+- [Detrending climate time series—an evaluation of Empirical Mode Decomposition](https://blogs.ubc.ca/colinmahony/2013/12/14/detrending/#:~:text=Effect%20of%20detrending%20on%20climate-year%20classification%20Detrending%20reduces,of%20BEC%20variants%20in%20a%20climate%20year%20classification.) (2013)
+
+#### Others
+
 - [Trend and Seasonal Components](https://webspace.maths.qmul.ac.uk/b.bogacka/TimeSeries/TS_Chapter2_1.pdf)
-- [Detrending climate time series—an evaluation of Empirical Mode Decomposition](https://blogs.ubc.ca/colinmahony/2013/12/14/detrending/#:~:text=Effect%20of%20detrending%20on%20climate-year%20classification%20Detrending%20reduces,of%20BEC%20variants%20in%20a%20climate%20year%20classification.)
 - [The impact of global warming on sea surface temperature based El Niño–Southern Oscillation monitoring indices](https://doi.org/10.1002/joc.5864) (2018)
 - [Spectral representation of the annual cycle in the climate change signal](https://doi.org/10.5194/hess-15-2777-2011) (2011)
 - [Sea Surface Temperatures: Seasonal Persistence and Trends](https://doi.org/10.1175/JTECH-D-19-0090.1) (2019)
