@@ -26,11 +26,11 @@
 
 #### Others
 
-- [Climate Time Series Analysis: Classical Statistical and Bootstrap Methods](https://doi.org/10.1007/978-3-319-04450-7) (Mudelsee, M., 2014)
+- The Analysis of Time Series: An Introduction with R (Chris Chatfield, Haipeng Xing, [2019](https://doi.org/10.1201/9781351259446))
+- Climate Time Series Analysis: Classical Statistical and Bootstrap Methods (Mudelsee, M., [2014](https://doi.org/10.1007/978-3-319-04450-7))
 - [Statistical Methods for Trend Detection and Analysis in the Environmental Sciences](http://doi.org/10.1002/9781119991571)
 - [Introduction to Time Series and Forecasting](https://doi.org/10.1007/978-3-319-29854-2) (Peter J. Brockwell, Richard A. Davis, 2016)
   - lecture notes: [MTH6139 Time Series](https://webspace.maths.qmul.ac.uk/b.bogacka/TimeSeries/MAS328.html)
-- [The Analysis of Time Series: An Introduction with R](https://doi.org/10.1201/9781351259446) (Chris Chatfield, Haipeng Xing, 2019)
 
 ### Toolbox
 
