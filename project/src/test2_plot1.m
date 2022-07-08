@@ -18,7 +18,7 @@
 
 %% ideal cases: () -> ()
 
-function [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x,span,lwlr_annual,T_annual,h,cat_ind_cell,M1_A,M1_B,M2,M2_A,M3,fig_name,filename,create_fig_en,export_fig_en)
+function [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x,span,lwlr_annual,T_annual,h,cat_ind_cell,M1_A,M1_B,M2,M2_A,M3,M1_A_cv,M1_B_cv,M2_cv,M2_A_cv,M3_cv,fig_name,filename,create_fig_en,export_fig_en)
 %test2_plot1 - Description
 %
 % Syntax: [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x,span,lwlr_annual,T_annual,h,cat_ind_cell,M1_A,M1_B,M2,M2_A,M3,fig_name,filename,create_fig_en,export_fig_en)
@@ -37,10 +37,24 @@ arguments
     M2
     M2_A
     M3
+    M1_A_cv
+    M1_B_cv
+    M2_cv
+    M2_A_cv
+    M3_cv
     fig_name = "fig_name";
     filename = "ideal_1.emf";
     create_fig_en = 0;
     export_fig_en = 0;
+end
+
+%%
+
+M_NAME = ["M1A","M1B","M2","M2A","M3"];
+CV_FUNC_HANDLER = {M1_A_cv,M1_B_cv,M2_cv,M2_A_cv,M3_cv};
+
+for i = 1:length(M_NAME)
+    CV_FUNC.(M_NAME(i)) = CV_FUNC_HANDLER{i};
 end
 
 if isempty(cat_ind_cell)
@@ -52,50 +66,59 @@ end
 
 %% additive classical decomposition
 
-[x_1A.trend,x_1A.season,x_1A.residue] = M1_A(t,x.raw,span,lwlr_annual,cat_ind_cell);
-[x_1B.trend,x_1B.season,x_1B.residue] = M1_B(t,x.raw,span,lwlr_annual,cat_ind_cell);
-[x_2.trend,x_2.season,x_2.residue] = M2(t,x.raw,span,lwlr_annual,cat_ind_cell);
-[x_2A.trend,x_2A.season,x_2A.residue] = M2_A(t,x.raw,span,lwlr_annual,cat_ind_cell);
-[x_3.trend,x_3.season,x_3.residue] = M3(t,x.raw,T_annual,h);
+[output.M1A.trend,output.M1A.season,output.M1A.residue] = M1_A(t,x.raw,span,lwlr_annual,cat_ind_cell);
+[output.M1B.trend,output.M1B.season,output.M1B.residue] = M1_B(t,x.raw,span,lwlr_annual,cat_ind_cell);
+[output.M2.trend,output.M2.season,output.M2.residue] = M2(t,x.raw,span,lwlr_annual,cat_ind_cell);
+[output.M2A.trend,output.M2A.season,output.M2A.residue] = M2_A(t,x.raw,span,lwlr_annual,cat_ind_cell);
+[output.M3.trend,output.M3.season,output.M3.residue] = M3(t,x.raw,T_annual,h);
 
 %% analysis
 
 %%% 1. sample Pearson linear Correlation Coefficient (CC) and Mean Square
-% Error (MSE) of extracted residue to ideal residue Test: Are they equal
-% to: CC and MSE of extracted trend + annual cycle (climatological mean?)
-% to ideal trend + annual cycle (climatological mean?) ?
+% Error (MSE) of extracted residue to ideal residue
+% QUESTION: Are they equal to: CC and MSE of extracted trend + annual cycle
+% (climatological mean?) to ideal trend + annual cycle (climatological
+% mean?) ?
 
-% [TODO] 写工具函数!
-
-x_1A.MSE_res2res = var(x_1A.residue - x.residue,0,"omitnan");
-x_1B.MSE_res2res = var(x_1B.residue - x.residue,0,"omitnan");
-x_2.MSE_res2res = var(x_2.residue - x.residue,0,"omitnan");
-x_2A.MSE_res2res = var(x_2A.residue - x.residue,0,"omitnan");
-x_3.MSE_res2res = var(x_3.residue - x.residue,0,"omitnan");
-
-x_1A.CC_res2res = corr(x_1A.residue,x.residue,'type','Pearson','rows','pairwise');
-x_1B.CC_res2res = corr(x_1B.residue,x.residue,'type','Pearson','rows','pairwise');
-x_2.CC_res2res = corr(x_2.residue,x.residue,'type','Pearson','rows','pairwise');
-x_2A.CC_res2res = corr(x_2A.residue,x.residue,'type','Pearson','rows','pairwise');
-x_3.CC_res2res = corr(x_3.residue,x.residue,'type','Pearson','rows','pairwise');
-
-x_1A.MSE_cm2cm = var(x_1A.trend + x_1A.season - x.trend - x.season,0,"omitnan");
-x_1B.MSE_cm2cm = var(x_1B.trend + x_1B.season - x.trend - x.season,0,"omitnan");
-x_2.MSE_cm2cm = var(x_2.trend + x_2.season - x.trend - x.season,0,"omitnan");
-x_2A.MSE_cm2cm = var(x_2A.trend + x_2A.season - x.trend - x.season,0,"omitnan");
-x_3.MSE_cm2cm = var(x_3.trend + x_3.season - x.trend - x.season,0,"omitnan");
-
-x_1A.CC_cm2cm = corr(x_1A.trend + x_1A.season, x.trend + x.season,'type','Pearson','rows','pairwise');
-x_1B.CC_cm2cm = corr(x_1B.trend + x_1B.season, x.trend + x.season,'type','Pearson','rows','pairwise');
-x_2.CC_cm2cm = corr(x_2.trend + x_2.season, x.trend + x.season,'type','Pearson','rows','pairwise');
-x_2A.CC_cm2cm = corr(x_2A.trend + x_2A.season, x.trend + x.season,'type','Pearson','rows','pairwise');
-x_3.CC_cm2cm = corr(x_3.trend + x_3.season, x.trend + x.season,'type','Pearson','rows','pairwise');
+for m_name = M_NAME
+    output.(m_name).res2res_RMSE = std(output.(m_name).residue - x.residue,0,"omitnan");
+    output.(m_name).cm2cm_RMSE = std(output.(m_name).trend + output.(m_name).season - x.trend - x.season,0,"omitnan");
+    output.(m_name).res2res_CC = corr(output.(m_name).residue, x.residue,'type','Pearson','rows','pairwise');
+    output.(m_name).cm2cm_CC = corr(output.(m_name).trend + output.(m_name).season, x.trend + x.season,'type','Pearson','rows','pairwise');
+end
 
 %%% 2. sample CC and MSE of extracted trend + annual cycle (climatological
 % mean?) to ideal raw series
 % Question: Their relations to CC and MSE obtained in "1."?
 
-x_1A.MSE_res2res = var(x_1A.residue - x.residue,0,"omitnan");
+for m_name = M_NAME
+    output.(m_name).cm2raw_RMSE = std(output.(m_name).trend + output.(m_name).season - x.raw, 0,"omitnan");
+    output.(m_name).cm2raw_CC = corr(output.(m_name).trend + output.(m_name).season, x.raw, 'type','Pearson','rows','pairwise');
+end
+
+%%% 3. Cross-validated mean squared Error (cvMSE) of trend + annual cycle
+% (climatological mean?) to ideal climatological mean
+
+n_fold = floor(length(t)/12);
+for m_name = M_NAME
+    output.(m_name).cm2cm_CVSE = nan(n_fold,1);
+    for i = 0:n_fold-1
+        ind_test = (1:12)+12*i;
+        t_istest = zeros(size(t));
+        t_istest(ind_test) = 1;
+        % TODO: 处理特殊情况-M3!
+        x_fit = CV_FUNC.(m_name)(t,x.raw,t_istest,span,lwlr_annual,cat_ind_cell);
+        output.(m_name).cm2cm_cvSE(i+1) = sum((x_fit.trend(ind_test) - x.trend(ind_test)).^2,"omitnan");
+    end
+    output.(m_name).cm2cm_cvRMSE = sqrt(mean(output.(m_name).cm2cm_cvSE,"omitnan"));
+end
+
+% output
+x_1A = output.M1A;
+x_1B = output.M1B;
+x_2 = output.M2;
+x_2A = output.M2A;
+x_3 = output.M3;
 
 %% create figure
 
@@ -125,11 +148,11 @@ ylabel(t_axes,"ideal series (℃)","FontSize",10)
 t_axes = nexttile(t_TCL,2);
 % plot(t_axes,t,x.raw-x.season,'-',"DisplayName",'ideal deseason');
 hold on
-plot(t_axes,t,x_1A.trend,'-',"DisplayName",'M-1A');
-plot(t_axes,t,x_1B.trend,'-',"DisplayName",'M-1B');
-plot(t_axes,t,x_2A.trend,'--',"DisplayName",'M-2A');
-plot(t_axes,t,x_2.trend,':',"DisplayName",'M-2');
-plot(t_axes,t,x_3.trend,'x',"DisplayName",'M-3','MarkerSize',2);
+plot(t_axes,t,output.M1A.trend,'-',"DisplayName",'M-1A');
+plot(t_axes,t,output.M1B.trend,'-',"DisplayName",'M-1B');
+plot(t_axes,t,output.M2A.trend,'--',"DisplayName",'M-2A');
+plot(t_axes,t,output.M2.trend,':',"DisplayName",'M-2');
+plot(t_axes,t,output.M3.trend,'x',"DisplayName",'M-3','MarkerSize',2);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{},'XLimitMethod','tight');
 legend(t_axes,'box','off','Orientation','vertical','NumColumns',3,'Location','best');
 xticks(t_axes,ticks_x);
@@ -141,11 +164,11 @@ ylabel(t_axes,"trend (℃)","FontSize",10)
 t_axes = nexttile(t_TCL,3);
 % plot(t_axes,t,x.residue,'-',"DisplayName",'ideal deseason');
 hold on
-plot(t_axes,t,x_1A.residue,'-',"DisplayName",'M-1A');
-plot(t_axes,t,x_1B.residue,'-',"DisplayName",'M-1B');
-plot(t_axes,t,x_2A.residue,'--',"DisplayName",'M-2A');
-plot(t_axes,t,x_2.residue,':',"DisplayName",'M-2');
-plot(t_axes,t,x_3.residue,'x',"DisplayName",'M-3','MarkerSize',2);
+plot(t_axes,t,output.M1A.residue,'-',"DisplayName",'M-1A');
+plot(t_axes,t,output.M1B.residue,'-',"DisplayName",'M-1B');
+plot(t_axes,t,output.M2A.residue,'--',"DisplayName",'M-2A');
+plot(t_axes,t,output.M2.residue,':',"DisplayName",'M-2');
+plot(t_axes,t,output.M3.residue,'x',"DisplayName",'M-3','MarkerSize',2);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');
 % legend(t_axes,'boxoff');
 xticks(t_axes,ticks_x);
@@ -158,11 +181,11 @@ ylabel(t_axes,"residue (℃)","FontSize",10)
 t_axes = nexttile(t_TCL,4);
 % plot(t_axes,t,x.raw-x.trend,'-',"DisplayName",'ideal detrended');
 hold on
-plot(t_axes,t,x_1A.season,'-',"DisplayName",'M-1A');
-plot(t_axes,t,x_1B.season,'-',"DisplayName",'M-1B');
-plot(t_axes,t,x_2A.season,'--',"DisplayName",'M-2A');
-plot(t_axes,t,x_2.season,':',"DisplayName",'M-2');
-plot(t_axes,t,x_3.season,'x',"DisplayName",'M-3','MarkerSize',2);
+plot(t_axes,t,output.M1A.season,'-',"DisplayName",'M-1A');
+plot(t_axes,t,output.M1B.season,'-',"DisplayName",'M-1B');
+plot(t_axes,t,output.M2A.season,'--',"DisplayName",'M-2A');
+plot(t_axes,t,output.M2.season,':',"DisplayName",'M-2');
+plot(t_axes,t,output.M3.season,'x',"DisplayName",'M-3','MarkerSize',2);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');
 xlim(t_axes,[1,24])
 % legend(t_axes,'boxoff');
@@ -176,8 +199,4 @@ if export_fig_en
 end
 
 return;
-end
-
-function [] = d()
-
 end

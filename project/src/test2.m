@@ -16,26 +16,17 @@ init_env();
 
 %% simple test
 
-t = [1:6,7:1200].';
-x = 5*sin(2*pi/6*t) + 2 + t + 0.5*randn(size(t));
-cat_ind_cell = cell(12,1);
-for i = 1:12
-    cat_ind_cell{i,1} = i:12:length(x);
-end
-
-[x_trend_1A,x_annual_1A,x_res_1A] = M1_A(t,x,120);
-[x_trend_1B,x_annual_1B,x_res_1B] = M1_B(t,x,120);
-[x_trend_2,x_annual_2,x_res_2] = M2(t,x,120);
-[x_trend_3,x_annual_3,x_res_3] = M3(t,x,12,2);
+[x_1A,x_1B,x_2,x_2A,x_3] = simple_test();
 
 %% Exp. 1
 
-export_fig_en = 1;
-create_fig_en = 0;
+export_fig_EN = 1;
+create_fig_EN = 0;
 
 t = (1:122*12).';                       % [months] 1900-2021
 span = [15*12,15*12-1];                 % [months]
 lwlr_annual = 1;
+h = 2;
 
 cat_ind_cell = cell(12,1);
 for i = 1:12
@@ -66,15 +57,11 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_1_%d",i),sprintf("ideal_1_%d",i),create_fig_en,export_fig_en);
+    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
+        sprintf("ideal_1_%d",i),sprintf("ideal_1_%d",i),create_fig_EN,export_fig_EN);
 end
-
-%% function... (analysis of ideal exp.)
-
-x = x{1};
-
-%%% 3. Cross-validated mean squared Error (CVE) of trend + annual cycle
-% (climatological mean?) to ideal climatological mean
 
 %% Exp. 1.1.2 (inter-annual)
 
@@ -84,7 +71,7 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_2_%d",i),sprintf("ideal_2_%d",i),create_fig_en,export_fig_en);
+     [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_2_%d",i),sprintf("ideal_2_%d",i),create_fig_EN,export_fig_EN);
 end
 
 %% Exp. 1.1.3 (inter-annual + noise)
@@ -95,7 +82,7 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_3_%d",i),sprintf("ideal_3_%d",i),create_fig_en,export_fig_en);
+    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_3_%d",i),sprintf("ideal_3_%d",i),create_fig_EN,export_fig_EN);
 end
 
 %% Exp. 1.2 (sensitivity to increment of trend)
@@ -122,7 +109,7 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_4_%d",i),sprintf("ideal_4_%d",i),create_fig_en,export_fig_en);
+    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_4_%d",i),sprintf("ideal_4_%d",i),create_fig_EN,export_fig_EN);
 end
 
 %% Exp. 1.3 (sensitivity to Explained Variance (EV) of annual cycle)
@@ -149,7 +136,7 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_5_%d",i),sprintf("ideal_5_%d",i),create_fig_en,export_fig_en);
+    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_5_%d",i),sprintf("ideal_5_%d",i),create_fig_EN,export_fig_EN);
 end
 
 %% local functions
@@ -590,4 +577,244 @@ function [x_trend,x_annual,x_res] = M3(t,x,T_annual,h)
     x_res = x - x_trend - x_annual;
 
     return;
+end
+
+%% simple test
+
+function [x_1A,x_1B,x_2,x_2A,x_3] = simple_test(t,x,span)
+    arguments
+        t = [1:6,7:1200].';
+        x = 5*sin(2*pi/6*t) + 2 + t + 0.5*randn(size(t));
+        span = 120;
+    end
+    
+    cat_ind_cell = cell(12,1);
+    for i = 1:12
+        cat_ind_cell{i,1} = i:12:length(x);
+    end
+    
+    [x_1A.trend,x_1A.season,x_1A.residue] = M1_A(t,x,span);
+    [x_1B.trend,x_1B.season,x_1B.residue] = M1_B(t,x,span);
+    [x_2.trend,x_2.season,x_2.residue] = M2(t,x,span);
+    [x_2A.trend,x_2A.season,x_2A.residue] = M2_A(t,x,span);
+    [x_3.trend,x_3.season,x_3.residue] = M3(t,x,12,2);
+end
+
+%% Cross-validation
+
+function [x_fit] = M1_A_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
+% M1_A_cv - cross validation for Method-1A
+% description
+    arguments
+        t
+        x
+        t_istest
+        span = [15*12,15*12-1];
+        lwlr_annual = 1;
+        cat_ind_cell = [];
+    end
+
+    if ~iscolumn(t)
+        t = t.';
+    end
+    if ~iscolumn(x)
+        x = x.';
+    end
+    t_istest = logical(t_istest);
+    if ~iscolumn(t_istest)
+        t = t.';
+    end
+    if isscalar(span)
+        span = [span, span];
+    end
+    
+    if any(t_istest)
+        x(t_istest) = NaN;
+    end
+    [x_trend,x_season,x_residue] = M1_A(t,x,span,lwlr_annual,cat_ind_cell);
+    x_fit.trend = x_trend;
+    x_fit.season = x_season;
+    x_fit.residue = x_residue;
+
+    return;
+end
+
+function [x_fit] = M1_B_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
+% M1_B_cv - cross validation for Method-1B
+% description
+    arguments
+        t
+        x
+        t_istest
+        span = [15*12,15*12-1];
+        lwlr_annual = 1;
+        cat_ind_cell = [];
+    end
+
+    if ~iscolumn(t)
+        t = t.';
+    end
+    if ~iscolumn(x)
+        x = x.';
+    end
+    t_istest = logical(t_istest);
+    if ~iscolumn(t_istest)
+        t = t.';
+    end
+    if isscalar(span)
+        span = [span, span];
+    end
+    
+    if any(t_istest)
+        x(t_istest) = NaN;
+    end
+    [x_trend,x_season,x_residue] = M1_B(t,x,span,lwlr_annual,cat_ind_cell);
+    x_fit.trend = x_trend;
+    x_fit.season = x_season;
+    x_fit.residue = x_residue;
+
+    return;
+end
+
+function [x_fit] = M2_A_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
+% M2_A_cv - cross validation for Method-2A
+% description
+    arguments
+        t
+        x
+        t_istest
+        span = [15*12,15*12-1];
+        lwlr_annual = 1;
+        cat_ind_cell = [];
+    end
+
+    if ~iscolumn(t)
+        t = t.';
+    end
+    if ~iscolumn(x)
+        x = x.';
+    end
+    t_istest = logical(t_istest);
+    if ~iscolumn(t_istest)
+        t = t.';
+    end
+    if isscalar(span)
+        span = [span, span];
+    end
+    
+    if any(t_istest)
+        x(t_istest) = NaN;
+    end
+    [x_trend,x_season,x_residue] = M2_A(t,x,span,lwlr_annual,cat_ind_cell);
+    x_fit.trend = x_trend;
+    x_fit.season = x_season;
+    x_fit.residue = x_residue;
+
+    return;
+end
+
+function [x_fit] = M2_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
+% M2_cv - cross validation for Method-2
+% description
+    arguments
+        t
+        x
+        t_istest
+        span = [15*12,15*12-1];
+        lwlr_annual = 1;
+        cat_ind_cell = [];
+    end
+
+    if ~iscolumn(t)
+        t = t.';
+    end
+    if ~iscolumn(x)
+        x = x.';
+    end
+    t_istest = logical(t_istest);
+    if ~iscolumn(t_istest)
+        t = t.';
+    end
+    if isscalar(span)
+        span = [span, span];
+    end
+    
+    if any(t_istest)
+        x(t_istest) = NaN;
+    end
+    [x_trend,x_season,x_residue] = M2(t,x,span,lwlr_annual,cat_ind_cell);
+    x_fit.trend = x_trend;
+    x_fit.season = x_season;
+    x_fit.residue = x_residue;
+
+    return;
+end
+
+function [x_fit] = M3_cv(t,x,t_istest,T_annual,h)
+% M3_cv - cross validation for Method-3
+% description
+    arguments
+        t
+        x
+        t_istest
+        T_annual
+        h
+    end
+
+    if ~iscolumn(t)
+        t = t.';
+    end
+    if ~iscolumn(x)
+        x = x.';
+    end
+    t_istest = logical(t_istest);
+    if ~iscolumn(t_istest)
+        t = t.';
+    end
+    
+    if any(t_istest)
+        x(t_istest) = NaN;
+    end
+    [x_trend,x_season,x_residue] = M3(t,x,T_annual,h);
+    x_fit.trend = x_trend;
+    x_fit.season = x_season;
+    x_fit.residue = x_residue;
+
+    return;
+end
+
+%%
+
+function M12_cv_handler = M12_cv_handler_gen(M12_HANDLER)
+% H1
+    M12_cv_handler = @M12_cv;
+    return;
+    
+    function [x_fit] = M12_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
+    % M12_cv - cross validation for Method-1A,1B,2,2A
+    % description
+        if ~iscolumn(t)
+            t = t.';
+        end
+        if ~iscolumn(x)
+            x = x.';
+        end
+        t_istest = logical(t_istest);
+        if ~iscolumn(t_istest)
+            t = t.';
+        end
+        if isscalar(span)
+            span = [span, span];
+        end
+        
+        if any(t_istest)
+            x(t_istest) = NaN;
+        end
+        [x_trend,x_season,x_residue] = M12_HANDLER(t,x,span,lwlr_annual,cat_ind_cell);
+        x_fit.trend = x_trend;
+        x_fit.season = x_season;
+        x_fit.residue = x_residue;
+    
+        return;
+    end
 end
