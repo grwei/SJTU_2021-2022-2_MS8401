@@ -23,8 +23,12 @@
    2. (不讨论. 原因："The assumption is that the predictive models have to be process-based, not data-driven." (Wu et.al., [2007](https://doi.org/10.1073/pnas.0701020104))) 预报视角，比较：WMO 经典定义法，趋势校正法 (Chen, X., and T. Li, [2021](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2))，Exponential smoothing (选 alpha)，单侧局部线性回归. 指标：重复 (Chen, X., and T. Li, [2021](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2)).
    3. implications: 关注 variability 的工作，建议增加 采取数种时间序列分解方法 的讨论.
 10. 更新的 idea:
-    1. 回顾(retrospective)视角，比较以下方案：(a) 决定 trend -> 决定 seasonality, (b) 再迭代一次.
+    1. 回顾(retrospective)视角，比较以下方案：(1a) 决定 trend -> 决定 seasonality, (1b) 决定 seasonality -> 决定 trend, (2) 再迭代一次, (3) 线性回归，同时决定 trend 和 seasonality, (4) Nino-X like: 先去 annual cycle, 再滑动平均? Narapusetty, B., DelSole, T., & Tippett, M. K. ([2009](https://doi.org/10.1175/2009JCLI2944.1))
+       1. 理想试验：M2, M2A 几乎无差异；trend 接近 M1b, seasonality 接近 M1a.
     2. intrinsic/adaptive means of trend extraction: Empirical Mode Decomposition (EMD); locally weighted linear regression (LOWESS)
+11. 建议保证 annual, residue 零均值.
+12. 题目：对几种分解方案的比较及其暗示
+13. 讨论：气候系统的非线性 -> 加性分解不好，不可能分开
 
 ## Resources
 
@@ -38,7 +42,8 @@
 
 - [An Improved Method for Defining Short-Term Climate Anomalies](http://jmr.cmsjournal.net/en/article/doi/10.1007/s13351-021-1139-2) (2021)
   - [中文解读：一种新的气候异常定义方法及其应用](https://mp.weixin.qq.com/s/s5-IaYUFE5S5JdOQ75unYg)
-- [Optimal Estimation of the Climatological Mean](https://doi.org/10.1175/2009JCLI2944.1) (2010)
+- Optimal Estimation of the Climatological Mean (Narapusetty, Balachandrudu, Timothy DelSole, and Michael K. Tippett., [2009](https://doi.org/10.1175/2009JCLI2944.1))
+- The Variability of Seasonality (Pezzulli, S., D. B. Stephenson, and A. Hannachi., [2005](https://doi.org/10.1175/JCLI-3256.1))
 - On the trend, detrending, and variability of nonlinear and nonstationary time series (Wu et.al., [2007](https://doi.org/10.1073/pnas.0701020104))
   - [Detrending climate time series—an evaluation of Empirical Mode Decomposition](https://blogs.ubc.ca/colinmahony/2013/12/14/) (2013)
   - [Empirical mode decomposition (Matlab)](https://ww2.mathworks.cn/help/signal/ref/emd.html)
@@ -52,7 +57,6 @@
 - [An introduction to time series forecasting](https://www.infoworld.com/article/3622246/an-introduction-to-time-series-forecasting.html)
   - [Trend and Seasonal Components](https://webspace.maths.qmul.ac.uk/b.bogacka/TimeSeries/TS_Chapter2_1.pdf)
 - [What we talk about when we talk about seasonality – A transdisciplinary review](https://doi.org/10.1016/j.earscirev.2021.103843) (2022)
-- [The Variability of Seasonality](https://doi.org/10.1175/JCLI-3256.1) (2005)
 - [The impact of global warming on sea surface temperature based El Niño–Southern Oscillation monitoring indices](https://doi.org/10.1002/joc.5864) (2018)
 - [Spectral representation of the annual cycle in the climate change signal](https://doi.org/10.5194/hess-15-2777-2011) (2011)
 - [Sea Surface Temperatures: Seasonal Persistence and Trends](https://doi.org/10.1175/JTECH-D-19-0090.1) (2019)

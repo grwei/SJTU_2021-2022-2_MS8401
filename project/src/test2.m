@@ -16,12 +16,16 @@ init_env();
 
 %% simple test
 
-[x_1A,x_1B,x_2,x_2A,x_3] = simple_test();
+simple_test();
 
-%% Exp. 1
+%% Exp. 1 (ideal series)
+
+METHOD_NAME = ["M-1A","M-1B","M-2","M-2A","M-3"];
+INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2cm_cvRMSE","cm2raw_cvRMSE"];
+INDICES_VAR_TYPES = repmat("double",size(METHOD_NAME));
 
 export_fig_EN = 1;
-create_fig_EN = 0;
+create_fig_EN = 1;
 
 t = (1:122*12).';                       % [months] 1900-2021
 span = [15*12,15*12-1];                 % [months]
@@ -32,6 +36,20 @@ cat_ind_cell = cell(12,1);
 for i = 1:12
     cat_ind_cell{i,1} = i:12:length(t);
 end
+
+for indices_name = INDICES_IDEAL_NAME
+    results_ideal.(indices_name) = table('Size',[0,length(METHOD_NAME)+1], ...
+        'VariableTypes',["string",INDICES_VAR_TYPES], ...
+        'VariableNames',["case_name",METHOD_NAME]);
+    results_ideal.(indices_name).Properties.Description = indices_name;
+end
+
+cnt_case = 0;
+x_1A = cell(10,1);
+x_1B = x_1A;
+x_2 = x_1A;
+x_2A = x_1A;
+x_3 = x_1A;
 
 %% Exp. 1.1
 
@@ -51,42 +69,64 @@ x_noise = std_noise * randn(size(t));
 
 %% Exp. 1.1.1 (noise)
 
+case_name = "ideal_1";
 x = cell(2,1);
 for i = 1:length(x_trend)
+    cnt_case = cnt_case + 1;
     x{i}.season = x_annual;
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_3{cnt_case}] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
-        sprintf("ideal_1_%d",i),sprintf("ideal_1_%d",i),create_fig_EN,export_fig_EN);
+        sprintf("%s_%d",case_name,i),sprintf("%s_%d",case_name,i),create_fig_EN,export_fig_EN);
+    for indices_name = INDICES_IDEAL_NAME
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_3{cnt_case}.(indices_name)};
+    end
 end
 
 %% Exp. 1.1.2 (inter-annual)
 
+case_name = "ideal_2";
 x = cell(2,1);
 for i = 1:length(x_trend)
+    cnt_case = cnt_case + 1;
     x{i}.season = x_annual;
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-     [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_2_%d",i),sprintf("ideal_2_%d",i),create_fig_EN,export_fig_EN);
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_3{cnt_case}] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
+        sprintf("%s_%d",case_name,i),sprintf("%s_%d",case_name,i),create_fig_EN,export_fig_EN);
+    for indices_name = INDICES_IDEAL_NAME
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_3{cnt_case}.(indices_name)};
+    end
 end
 
 %% Exp. 1.1.3 (inter-annual + noise)
 
+case_name = "ideal_3";
 x = cell(2,1);
 for i = 1:length(x_trend)
+    cnt_case = cnt_case + 1;
     x{i}.season = x_annual;
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_3_%d",i),sprintf("ideal_3_%d",i),create_fig_EN,export_fig_EN);
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_3{cnt_case}] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
+        sprintf("%s_%d",case_name,i),sprintf("%s_%d",case_name,i),create_fig_EN,export_fig_EN);
+    for indices_name = INDICES_IDEAL_NAME
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_3{cnt_case}.(indices_name)};
+    end
 end
 
 %% Exp. 1.2 (sensitivity to increment of trend)
 
+case_name = "ideal_4";
 T_annual = 12;                          % [month] annual cycle
 A_annual = 7.5;                         % [deg C] amplitude
 T_inter_an = 4.3 * 12;                  % [month] inter-annual cycle
@@ -105,15 +145,23 @@ x_noise = std_noise * randn(size(t));
 
 x = cell(2,1);
 for i = 1:length(x_trend)
+    cnt_case = cnt_case + 1;
     x{i}.season = x_annual;
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_4_%d",i),sprintf("ideal_4_%d",i),create_fig_EN,export_fig_EN);
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_3{cnt_case}] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
+        sprintf("%s_%d",case_name,i),sprintf("%s_%d",case_name,i),create_fig_EN,export_fig_EN);
+    for indices_name = INDICES_IDEAL_NAME
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_3{cnt_case}.(indices_name)};
+    end
 end
 
 %% Exp. 1.3 (sensitivity to Explained Variance (EV) of annual cycle)
 
+case_name = "ideal_5";
 T_annual = 12;                          % [month] annual cycle
 A_annual = 0.5;                         % [deg C] amplitude
 T_inter_an = 4.3 * 12;                  % [month] inter-annual cycle
@@ -132,20 +180,35 @@ x_noise = std_noise * randn(size(t));
 
 x = cell(2,1);
 for i = 1:length(x_trend)
+    cnt_case = cnt_case + 1;
     x{i}.season = x_annual;
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A,x_1B,x_2,x_2A,x_3] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,2,cat_ind_cell,@M1_A,@M1_B,@M2,@M2_A,@M3,sprintf("ideal_5_%d",i),sprintf("ideal_5_%d",i),create_fig_EN,export_fig_EN);
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_3{cnt_case}] = test2_plot1(t,x{i},span,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_A_cv,@M2_cv,@M3_cv, ...
+        sprintf("%s_%d",case_name,i),sprintf("%s_%d",case_name,i),create_fig_EN,export_fig_EN);
+    for indices_name = INDICES_IDEAL_NAME
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_3{cnt_case}.(indices_name)};
+    end
 end
+
+%%
+
+save("../bin/test2","results_ideal","x_1A","x_1B","x_2","x_2A","x_3","METHOD_NAME","INDICES_IDEAL_NAME");
+
+%%
+
+test2_plot2();
 
 %% local functions
 
 %% Initialize environment
 
 function [] = init_env()
-    % Initialize environment
-    %
+% Initialize environment
+%
     % set up project directory
     if ~isfolder("../doc/fig/test2/")
         mkdir ../doc/fig/test2/
@@ -161,10 +224,10 @@ end
 
 %%
 
-function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_pred,weight_fun)
+function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_test,weight_fun_handle)
 %lwlr - Locally Weighted Linear Regression (LWLR)
 %
-% Syntax: [y_lwlr] = lwlr(x,y,span,lwlr_annual,x_pred,weight_fun)
+% Syntax: [y_lwlr] = lwlr(x,y,span,lwlr_annual,x_test,weight_fun)
 %
 % Locally Weighted Linear Regression (LWLR)
 
@@ -173,8 +236,8 @@ function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_pred,weight_fun)
         y           % response
         span        % [6,6]
         lwlr_annual = 1;
-        x_pred = x;
-        weight_fun = @(x) ones(length(x),1); % column vector
+        x_test = x;
+        weight_fun_handle = []; % column vector
     end
 
     if ~iscolumn(x)
@@ -183,8 +246,8 @@ function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_pred,weight_fun)
     if ~iscolumn(y)
         y = y.';
     end
-    if ~iscolumn(x_pred)
-        x_pred = x_pred.';
+    if ~iscolumn(x_test)
+        x_test = x_test.';
     end
     if isempty(lwlr_annual)
         lwlr_annual = 1;
@@ -198,10 +261,10 @@ function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_pred,weight_fun)
     end
 
     y_lwlr = nan(size(y));
-    for i = 1:length(x_pred)
+    for i = 1:length(x_test)
         % determine data range
-        ind_left = find(x >= x_pred(i) - span(1),1,'first');
-        ind_right = find(x <= x_pred(i) + span(2),1,'last');
+        ind_left = find(x >= x_test(i) - span(1),1,'first');
+        ind_right = find(x <= x_test(i) + span(2),1,'last');
         if (ind_left == 1)
 %             ind_right = ind_right - mod(ind_right - ind_left + 1,lwlr_annual);
             ind_right = ind_left + span(2) + span(1);
@@ -210,11 +273,15 @@ function [y_lwlr] = lwlr_period(x,y,span,lwlr_annual,x_pred,weight_fun)
             ind_left = ind_right - span(2) - span(1);
         end
 
-        X = [ones(ind_right-ind_left+1,1),x(ind_left:ind_right)];
-        Y = y(ind_left:ind_right);
-        w = weight_fun(ind_left:ind_right); % column vector
+        X = [ones(ind_right-ind_left+1,1),x(ind_left:ind_right,1)];
+        Y = y(ind_left:ind_right,1);
+        if isa(weight_fun_handle,"function_handle")
+            w = weight_fun_handle(x(ind_left:ind_right)); % column vector
+        else
+            w = 1;
+        end
         coeff = ((X.'*(w.*X))\(X.'*(w.*Y)));
-        y_lwlr(i) = [1,x_pred(i)]*coeff;
+        y_lwlr(i) = [1,x_test(i)]*coeff;
     end
 
     return;
@@ -785,9 +852,9 @@ end
 
 %%
 
-function M12_cv_handler = M12_cv_handler_gen(M12_HANDLER)
+function M12_cv_handle = M12_cv_handle_gen(M12_HANDLE)
 % H1
-    M12_cv_handler = @M12_cv;
+    M12_cv_handle = @M12_cv;
     return;
     
     function [x_fit] = M12_cv(t,x,t_istest,span,lwlr_annual,cat_ind_cell)
@@ -810,7 +877,7 @@ function M12_cv_handler = M12_cv_handler_gen(M12_HANDLER)
         if any(t_istest)
             x(t_istest) = NaN;
         end
-        [x_trend,x_season,x_residue] = M12_HANDLER(t,x,span,lwlr_annual,cat_ind_cell);
+        [x_trend,x_season,x_residue] = M12_HANDLE(t,x,span,lwlr_annual,cat_ind_cell);
         x_fit.trend = x_trend;
         x_fit.season = x_season;
         x_fit.residue = x_residue;
