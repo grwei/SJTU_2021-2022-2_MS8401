@@ -7,6 +7,8 @@
 
 ## Contents
 
+- [Course project](doc/课程项目_危国锐.pdf)
+
 ### Question
 
 1. 什么视角？回顾(retrospective, 可用"未来"资料, goal: for analysis) or 实况/预报(forecasting, 只用当前及过去的资料, goal: for prediction)？
