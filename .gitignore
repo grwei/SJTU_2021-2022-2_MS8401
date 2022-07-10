@@ -4,6 +4,8 @@
 project/inc/CDT-master/cdt/cdt_data
 *.zip
 ~$*.doc*
+project/bin
+project/doc/fig
 
 # Prerequisites
 *.d
