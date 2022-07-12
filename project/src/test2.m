@@ -248,7 +248,7 @@ clc; clear;
 
 export_fig_EN = false;
 create_fig_EN = false;
-real_solve_EN = true;
+real_solve_EN = false;
 
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV"];
@@ -292,7 +292,7 @@ end_time = datetime(2021,12,30);
 
 TF_lon_range = lon > -Inf & lon < +Inf;
 TF_lat_range = lat > -Inf & lat < +Inf;
-% TF_lon_range = lon > 179 & lon < +181;
+% TF_lon_range = lon > 319 & lon < 321;
 % TF_lat_range = lat > +47 & lat < +49;
 TF_time_range = start_time < time_month & time_month < end_time; % 1902.01-2021.12
 

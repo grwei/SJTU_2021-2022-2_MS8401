@@ -96,7 +96,6 @@ end
 [output.Ssa.trend,output.Ssa.season,output.Ssa.residue] = M1_A(t,x.raw,+Inf,0,lwlr_annual,cat_ind_cell);
 [output.Ssm.trend,output.Ssm.season,output.Ssm.residue] = M3(t,x.raw,T_annual,h,0);
 
-
 %% Analysis
 
 %%% 1. sample Pearson linear Correlation Coefficient (CC) and Mean Square
