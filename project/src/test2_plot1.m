@@ -34,18 +34,21 @@ indices_name_group = ["res2res_RMSE","res2res_CC";
                       "cm2cm_RMSE","cm2cm_CC";
                       "cm2raw_RMSE","cm2raw_CC";
                       "cm2cm_cvRMSE","cm2raw_cvRMSE";
+                      "season_mean","res_mean";
                       "cm2raw_EV",""];
 title_group = ["\bf Residual: output vs. ideal","";
                "\bf Climatological mean: output vs. ideal","";
                "\bf Output climatological mean vs. ideal series","";
                "\bf Climatological mean: output vs. ideal","\bf Output climatological mean vs. ideal series";
+               "\bf Mean of seasonal component","\bf Mean of residual component";
                "\bf Variance Explained (EV) by the climatological mean",""];
 ylabel_group = ["RMSE","Corr. Coeff.";
                 "RMSE","Corr. Coeff.";
                 "RMSE","Corr. Coeff.";
                 "Cross-validated RMSE (CVE)","Cross-validated RMSE (CVE)";
+                "lg(abs(value))","lg(abs(value))";
                 "Variance Explained",""];
-fig_name = "ideal_" + ["res2res";"cm2cm";"cm2raw";"cross_validation";"cm2raw_EV"];
+fig_name = "ideal_" + ["res2res";"cm2cm";"cm2raw";"cross_validation";"season_res_mean";"cm2raw_EV"];
 file_name = fig_name;
 
 for i = 1:length(fig_name)
@@ -81,39 +84,53 @@ end
 
 % 1.
 t_axes = nexttile(t_TCL,1);
-Bar = bar(t_axes,indices_table1{:,2:end});
+if indices_name1 == "season_mean" || indices_name1 == "res_mean"
+    Bar = bar(t_axes,log10(abs(indices_table1{:,2:end-2})));
+else
+    Bar = bar(t_axes,indices_table1{:,2:end-2});
+end
 for i = 1:length(Bar)
     Bar(i).set("DisplayName",indices_table1.Properties.VariableNames{i+1})
 end      
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{});
-legend(t_axes,'box','off','Orientation','vertical','NumColumns',4,'Location','northwest');
+legend(t_axes,'box','on','Orientation','vertical','NumColumns',4,'Location','northwest');
 title(t_axes,title1,"FontSize",10)
 if ylabel1 ~= "" && ~isempty(indices_table2) && ylabel1 ~= ylabel2
     ylabel(t_axes,ylabel1,"FontSize",10);
 end
 
-if isempty(indices_table2) || ylabel1 == ylabel2
+if isempty(indices_table2)
     ylabel(t_TCL,ylabel1,"FontSize",10,"FontName",'Times New Roman');
     xticklabels(t_axes,"C"+string(1:size(indices_table1,1)))
     xlabel(t_axes,"Name of Case","FontSize",10);
     legend(t_axes,'box','on','Orientation','vertical','NumColumns',4,'Location','best');
+    
+    if export_fig_en
+    exportgraphics(t_TCL,sprintf("..\\doc\\fig\\test2\\%s.emf",file_name),'Resolution',graph_res,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+    exportgraphics(t_TCL,sprintf("..\\doc\\fig\\test2\\%s.png",file_name),'Resolution',graph_res,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+    %     exportgraphics(t_TCL,sprintf("..\\doc\\fig\\test2\\%s.eps",filename),'Resolution',graph_res,'ContentType','auto','BackgroundColor','none','Colorspace','rgb');
+    end
+
+    return;
 end
 
 % 2.
-if ~isempty(indices_table2)
-    t_axes = nexttile(t_TCL,2);
-    bar(t_axes,indices_table2{:,2:end});
-    set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{});
-    xticklabels(t_axes,"C"+string(1:size(indices_table1,1)))
-    xlabel(t_axes,"Name of Case","FontSize",10)
-    title(t_axes,title2,"FontSize",10)
-    if ylabel2 ~= "" && ylabel1 ~= ylabel2
-        ylabel(t_axes,ylabel2,"FontSize",10)
-    end
+t_axes = nexttile(t_TCL,2);
+if indices_name2 == "season_mean" || indices_name2 == "res_mean"
+    bar(t_axes,log10(abs(indices_table2{:,2:end-2})));
+else
+    bar(t_axes,indices_table2{:,2:end-2});
+end
+set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{});
+xticklabels(t_axes,"C"+string(1:size(indices_table1,1)))
+xlabel(t_axes,"Name of Case","FontSize",10)
+title(t_axes,title2,"FontSize",10)
+if ylabel2 ~= "" && ylabel1 ~= ylabel2
+    ylabel(t_axes,ylabel2,"FontSize",10)
 end
 
-if file_name == "ideal_cross_validation"
-    ylabel(t_TCL,"Cross-validated  RMSE","FontSize",10,"FontName",'Times New Roman')
+if ylabel1 == ylabel2
+    ylabel(t_TCL,ylabel1,"FontSize",10,"FontName",'Times New Roman')
 end
 
 %%

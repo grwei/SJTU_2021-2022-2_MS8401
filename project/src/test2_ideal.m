@@ -108,6 +108,8 @@ for m_name = METHOD_NAME
     output.(m_name).cm2cm_RMSE = std(output.(m_name).trend + output.(m_name).season - x.trend - x.season,0,"omitnan");
     output.(m_name).res2res_CC = corr(output.(m_name).residue, x.residue,'type','Pearson','rows','pairwise');
     output.(m_name).cm2cm_CC = corr(output.(m_name).trend + output.(m_name).season, x.trend + x.season,'type','Pearson','rows','pairwise');
+    output.(m_name).season_mean = mean(output.(m_name).season,"omitnan");
+    output.(m_name).res_mean = mean(output.(m_name).residue,"omitnan");
 end
 
 %%% 2. sample CC and MSE of extracted trend + annual cycle (climatological

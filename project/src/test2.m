@@ -21,11 +21,11 @@ simple_test();
 %% Exp. 1 (ideal series)
 
 export_fig_EN = true;
-create_fig_EN = false;
-ideal_solve_EN = false;
+create_fig_EN = true;
+ideal_solve_EN = true;
 
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
-INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE"];
+INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 bin_folder_name = "ideal";
 
@@ -248,10 +248,10 @@ clc; clear;
 
 export_fig_EN = false;
 create_fig_EN = false;
-real_solve_EN = false;
+real_solve_EN = true;
 
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
-INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV"];
+INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 
 cnt_case = 0;
@@ -475,7 +475,7 @@ function [mu,season_series,season_main] = season_simple(x,cat_ind_cell)
     
     season_main = cellfun(@(ind) mean(x(ind),"omitnan"),cat_ind_cell);
     mu = mean(season_main,"omitnan"); % note: this is NOT the mean of original series!
-    season_main = season_main - mu;
+    season_main = season_main - mean(x,"omitnan");
     
     season_series = nan(size(x));
     for i = 1:length(cat_ind_cell)
@@ -636,7 +636,7 @@ function [x_trend,x_season,x_res] = M1_A(t,x,span,trend_deg,lwlr_annual,cat_ind_
 
     %%% 3. irregular estimates
 
-    x_res = x - x_trend - x_season;
+    x_res = x - x_trend - x_season - mean(x - x_trend,"omitnan");
 
     return;
 end
@@ -797,7 +797,7 @@ function [x_trend,x_season,x_res] = M2_A(t,x,span,trend_deg,lwlr_annual,cat_ind_
     %%% 3. Final seasonal and irregular estimates
 
     [~,x_season,~] = season_simple(x - x_trend,cat_ind_cell);
-    x_res = x - x_trend - x_season;
+    x_res = x - x_trend - x_season - mean(x - x_trend,'omitnan');
 
     return;
 end

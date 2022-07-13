@@ -113,6 +113,11 @@ for m_name = METHOD_NAME
     end
 end
 
+for m_name = METHOD_NAME
+   output.(m_name).season_mean = mean(output.(m_name).season,"omitnan");
+   output.(m_name).res_mean = mean(output.(m_name).residue,"omitnan");
+end
+
 %%% 2. The fraction of variance explained (EV) by the trend + annual cycle (climatological mean?)
 
 for m_name = METHOD_NAME
