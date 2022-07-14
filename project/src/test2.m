@@ -21,8 +21,8 @@ simple_test();
 %% Exp. 1 (ideal series)
 
 export_fig_EN = true;
-create_fig_EN = true;
-ideal_solve_EN = true;
+create_fig_EN = false;
+ideal_solve_EN = false;
 
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","res_mean"];
@@ -235,7 +235,7 @@ end
 if isfile("../bin/test2/test2.mat")
     save("../bin/test2/test2.mat","results_ideal",'-append');
 else
-    save("../bin/test2/test2.mat","results_ideal");
+    save("../bin/test2/test2.mat","results_ideal",'-v7.3');
 end
 
 %%
@@ -248,8 +248,10 @@ clc; clear;
 
 export_fig_EN = false;
 create_fig_EN = false;
-real_solve_EN = true;
+real_solve_EN = false;
+save_mat_EN = false;
 
+METHOD_NAME = ["M1A","M1B","M2","M2A","M2P","M3L","M3Q","Ssa","Ssm"];
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
@@ -341,7 +343,42 @@ for lon_ind = 1:size(sst,1)
     end
 end
 
-%%
+%% summary
+
+ersst_v5.description = "sst(lon,lat,time)";
+ersst_v5.METHOD_NAME = METHOD_NAME;
+ersst_v5.METHOD_DISP_NAME = METHOD_DISP_NAME;
+ersst_v5.INDICES_NAME = INDICES_REAL_NAME;
+ersst_v5.INDICES_VAR_TYPES = INDICES_VAR_TYPES;
+ersst_v5.t = t;
+ersst_v5.lon = lon;
+ersst_v5.lat = lat;
+for field_name = [INDICES_REAL_NAME,"trend","season","residue"]
+    for lon_ind = 1:size(sst,1)
+        for lat_ind = 1:size(sst,2)
+            ersst_v5.M1A.(field_name){lon_ind,lat_ind} = x_1A{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M1B.(field_name){lon_ind,lat_ind} = x_1B{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M2.(field_name){lon_ind,lat_ind} = x_2{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M2A.(field_name){lon_ind,lat_ind} = x_2A{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M2P.(field_name){lon_ind,lat_ind} = x_2P{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M3L.(field_name){lon_ind,lat_ind} = x_3L{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M3Q.(field_name){lon_ind,lat_ind} = x_3Q{lon_ind,lat_ind}.(field_name);
+            ersst_v5.Ssa.(field_name){lon_ind,lat_ind} = x_Ssa{lon_ind,lat_ind}.(field_name);
+            ersst_v5.Ssm.(field_name){lon_ind,lat_ind} = x_Ssm{lon_ind,lat_ind}.(field_name);
+        end
+    end
+end
+
+%% 
+
+if save_mat_EN
+    mat_file_path = "../bin/test2/"+bin_folder_name;
+    if isfile(mat_file_path)
+        save(mat_file_path,"ersst_v5",'-append');
+    else
+        save(mat_file_path,"ersst_v5",'-v7.3');
+    end
+end
 
 %% local functions
 
