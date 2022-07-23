@@ -27,7 +27,7 @@ if ~create_fig_EN
     return;
 end
 
-marker_size = 1;
+marker_size = 0.58;
 graph_res = 1000;
 
 ticks_x = t(1:240:end);
@@ -56,7 +56,7 @@ plot(t_axes,t,output.M1A.trend,'-',"DisplayName",'M-1A');
 plot(t_axes,t,output.M1B.trend,'-',"DisplayName",'M-1B');
 plot(t_axes,t,output.M2.trend,':',"DisplayName",'M-2');
 plot(t_axes,t,output.M2A.trend,'--',"DisplayName",'M-2A');
-plot(t_axes,t,output.M2P.trend,'-.',"DisplayName",'M-2P');
+plot(t_axes,t,output.M2S.trend,'-.',"DisplayName",'M-2S');
 plot(t_axes,t,output.M3L.trend,'x',"DisplayName",'M-3L','MarkerSize',marker_size);
 plot(t_axes,t,output.M3Q.trend,'+',"DisplayName",'M-3Q','MarkerSize',marker_size);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{},'XLimitMethod','tight');
@@ -74,7 +74,7 @@ plot(t_axes,t,output.M1A.residue,'-',"DisplayName",'M-1A');
 plot(t_axes,t,output.M1B.residue,'-',"DisplayName",'M-1B');
 plot(t_axes,t,output.M2.residue,':',"DisplayName",'M-2');
 plot(t_axes,t,output.M2A.residue,'--',"DisplayName",'M-2A');
-plot(t_axes,t,output.M2P.residue,'-.',"DisplayName",'M-2P');
+plot(t_axes,t,output.M2S.residue,'-.',"DisplayName",'M-2S');
 plot(t_axes,t,output.M3L.residue,'x',"DisplayName",'M-3L','MarkerSize',marker_size);
 plot(t_axes,t,output.M3Q.residue,'+',"DisplayName",'M-3Q','MarkerSize',marker_size);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');
@@ -93,7 +93,7 @@ plot(t_axes,t,output.M1A.season,'-',"DisplayName",'M-1A');
 plot(t_axes,t,output.M1B.season,'-',"DisplayName",'M-1B');
 plot(t_axes,t,output.M2.season,':',"DisplayName",'M-2');
 plot(t_axes,t,output.M2A.season,'--',"DisplayName",'M-2A');
-plot(t_axes,t,output.M2P.season,'-.',"DisplayName",'M-2P');
+plot(t_axes,t,output.M2S.season,'-.',"DisplayName",'M-2S');
 plot(t_axes,t,output.M3L.season,'x',"DisplayName",'M-3L','MarkerSize',marker_size);
 plot(t_axes,t,output.M3Q.season,'+',"DisplayName",'M-3Q','MarkerSize',marker_size);
 set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');

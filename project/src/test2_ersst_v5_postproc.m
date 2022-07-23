@@ -17,7 +17,7 @@ mat_file_path = "../bin/test2/ersst_v5.mat";
 load(mat_file_path,'ersst_v5');
 
 %%
-create_fig_EN = true;
+create_fig_EN = false;
 export_fig_EN = true;
 METHOD_NAME = ersst_v5.METHOD_NAME;
 METHOD_DISP_NAME = ersst_v5.METHOD_DISP_NAME;
@@ -52,8 +52,6 @@ end
 
 ref_method_name = repmat("M2",[1,length(METHOD_NAME)]);
 %
-season_diff = struct;
-residual_diff = season_diff;
 season_diff.ref_method_name = ref_method_name;
 residual_diff.ref_method_name = ref_method_name;
 season_diff.method_name = METHOD_NAME;
@@ -64,7 +62,7 @@ for k = 1:length(season_diff.method_name)
     %
     season_diff.(method_name).max = nan(length(lon),length(lat));
     season_diff.(method_name).min = season_diff.(method_name).max;
-    residual_diff.(method_name).min = season_diff.(method_name).max;
+    residual_diff.(method_name).max = season_diff.(method_name).max;
     residual_diff.(method_name).min = season_diff.(method_name).max;
     for i = 1:length(lon)
         for j = 1:length(lat)
@@ -78,30 +76,31 @@ end
 
 %% additional
 
-method_name = ["M1B","M1A","M1B","M1A","M1B"];
-ref_method_name = ["M1A","M2P","M2P","M2A","M2A"];
+method_name = ["M1B","M1A","M1B","M1A","M1B","M2S"];
+ref_method_name = ["M1A","M2S","M2S","M2A","M2A","M2A"];
 %
-season_diff_ad = struct;
-residual_diff_ad = season_diff_ad;
 season_diff_ad.method_name = method_name;
 season_diff_ad.ref_method_name = ref_method_name;
+season_diff_ad.field_name = method_name + "_" + ref_method_name;
 residual_diff_ad.method_name = method_name;
 residual_diff_ad.ref_method_name = ref_method_name;
+residual_diff_ad.field_name = method_name + "_" + ref_method_name;
 %
 for k = 1:length(season_diff_ad.method_name)
     method_name = season_diff_ad.method_name(k);
     ref_method_name = season_diff_ad.ref_method_name(k);
+    field_name = method_name + "_" + ref_method_name;
     %
-    season_diff_ad.(method_name).max = nan(length(lon),length(lat));
-    season_diff_ad.(method_name).min = season_diff_ad.(method_name).max;
-    residual_diff_ad.(method_name).max = season_diff_ad.(method_name).max;
-    residual_diff_ad.(method_name).min = season_diff_ad.(method_name).max;
+    season_diff_ad.(field_name).max = nan(length(lon),length(lat));
+    season_diff_ad.(field_name).min = season_diff_ad.(field_name).max;
+    residual_diff_ad.(field_name).max = season_diff_ad.(field_name).max;
+    residual_diff_ad.(field_name).min = season_diff_ad.(field_name).max;
     for i = 1:length(lon)
         for j = 1:length(lat)
-            season_diff_ad.(method_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            season_diff_ad.(method_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            residual_diff_ad.(method_name).max(i,j) = max(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
-            residual_diff_ad.(method_name).min(i,j) = min(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
+            season_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
+            season_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
+            residual_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
+            residual_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
         end
     end
 end
@@ -123,7 +122,7 @@ for method_name = season_mean.method_name
     title2 = title1;
     unit_name1 = "Mean of season component (°C)";
     unit_name2 = "Mean of residual (°C)";
-    filename = sprintf("ersst_v5\\ersst_v5_%s_mean_season_resdual",METHOD_DISP_NAME(METHOD_NAME == method_name));
+    filename = sprintf("ersst_v5\\ersst_v5_%s_mean_season_residual",METHOD_DISP_NAME(METHOD_NAME == method_name));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 end
@@ -136,11 +135,11 @@ for i = 1:length(METHOD_NAME)
     % raw data); variance explained (EV) by extracted climatological mean
     % of raw data.
     data1 = cell2mat(ersst_v5.(method_name).cm2raw_cvRMSE);
-    data2 = cell2mat(ersst_v5.(method_name).cm2raw_EV);
+    data2 = cell2mat(ersst_v5.(method_name).cm2raw_EV)*100;
     title1 = sprintf("\\bf %s: Climatological mean to raw series",METHOD_DISP_NAME(i));
     title2 = title1;
     unit_name1 = "Cross-validated RMSE (°C)";
-    unit_name2 = "Variance Explained";
+    unit_name2 = "Variance Explained (%)";
     filename = sprintf("ersst_v5\\ersst_v5_%s_cm2raw_CVE_EV",METHOD_DISP_NAME(i));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
@@ -195,12 +194,13 @@ end
 for i = 1:length(season_diff_ad.method_name)
     method_name = season_diff_ad.method_name(i);
     ref_method_name = season_diff_ad.ref_method_name(i);
+    field_name = season_diff_ad.field_name(i);
     if method_name == ref_method_name
         continue;
     end
     % seasonality difference from method * to reference method
-    data1 = season_diff_ad.(method_name).max;
-    data2 = season_diff_ad.(method_name).min;
+    data1 = season_diff_ad.(field_name).max;
+    data2 = season_diff_ad.(field_name).min;
     title1 = sprintf("\\bf Annual cycle: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
     title2 = title1;
     unit_name1 = "Max. (°C)";
@@ -210,8 +210,8 @@ for i = 1:length(season_diff_ad.method_name)
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 
     % residual difference from method * to reference method
-    data1 = residual_diff_ad.(method_name).max;
-    data2 = residual_diff_ad.(method_name).min;
+    data1 = residual_diff_ad.(field_name).max;
+    data2 = residual_diff_ad.(field_name).min;
     title1 = sprintf("\\bf Residual: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
     title2 = title1;
     unit_name1 = "Max. (°C)";

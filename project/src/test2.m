@@ -21,10 +21,10 @@ simple_test();
 %% Exp. 1 (ideal series)
 
 export_fig_EN = true;
-create_fig_EN = false;
+create_fig_EN = true;
 ideal_solve_EN = false;
 
-METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
+METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2S","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 bin_folder_name = "ideal";
@@ -52,7 +52,7 @@ x_1A = cell(10,1);
 x_1B = x_1A;
 x_2 = x_1A;
 x_2A = x_1A;
-x_2P = x_1A;
+x_2S = x_1A;
 x_3L = x_1A;
 x_3Q = x_1A;
 x_Ssa = x_1A;
@@ -94,14 +94,14 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2P{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-        @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
     test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
-        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2P{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
     end
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
@@ -117,14 +117,14 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2P{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-        @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
     test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
-        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2P{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
     end
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
@@ -140,14 +140,14 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2P{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-        @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
     test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
-        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2P{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
     end
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
@@ -179,14 +179,14 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2P{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-        @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
     test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
-        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2P{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
     end
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
@@ -218,14 +218,14 @@ for i = 1:length(x_trend)
     x{i}.trend = x_trend{i};
     x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
     x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2P{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-        @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+        @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+        @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
     test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
-        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2P{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
+        results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
     end
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
@@ -251,8 +251,8 @@ create_fig_EN = false;
 real_solve_EN = false;
 save_mat_EN = false;
 
-METHOD_NAME = ["M1A","M1B","M2","M2A","M2P","M3L","M3Q","Ssa","Ssm"];
-METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2P","M-3L","M-3Q","Ssa","Ssm"];
+METHOD_NAME = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
+METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2S","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 
@@ -315,7 +315,7 @@ x_1A = cell(size(sst,1),size(sst,2));
 x_1B = x_1A;
 x_2 = x_1A;
 x_2A = x_1A;
-x_2P = x_1A;
+x_2S = x_1A;
 x_3L = x_1A;
 x_3Q = x_1A;
 x_Ssa = x_1A;
@@ -324,20 +324,20 @@ x_Ssm = x_1A;
 for lon_ind = 1:size(sst,1)
     for lat_ind = 1:size(sst,2)
         x.raw = squeeze(sst(lon_ind,lat_ind,:));
-        [x_1A{lon_ind,lat_ind},x_1B{lon_ind,lat_ind},x_2{lon_ind,lat_ind},x_2A{lon_ind,lat_ind},x_2P{lon_ind,lat_ind},x_3L{lon_ind,lat_ind},x_3Q{lon_ind,lat_ind},x_Ssa{lon_ind,lat_ind},x_Ssm{lon_ind,lat_ind}] = test2_real(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
-                @M1_A,@M1_B,@M2,@M2_A,@M2_P,@M3, ...
-                @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_P_cv,@M3_cv, ...
+        [x_1A{lon_ind,lat_ind},x_1B{lon_ind,lat_ind},x_2{lon_ind,lat_ind},x_2A{lon_ind,lat_ind},x_2S{lon_ind,lat_ind},x_3L{lon_ind,lat_ind},x_3Q{lon_ind,lat_ind},x_Ssa{lon_ind,lat_ind},x_Ssm{lon_ind,lat_ind}] = test2_real(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+                @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
+                @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
                 sprintf("%s\\%s_%gN_%gE",bin_folder_name,case_name,lat(lat_ind),lon(lon_ind)),real_solve_EN);
         fprintf("%gN %gE, cm2raw_cvRMSE (EV): (total time = %.1f secs)\n" + ...
             "M-1A:\t %.3f (%.3f), \t M-1B:\t %.3f (%.3f),\n" + ...
             "M-2:\t %.3f (%.3f), \t M-2A:\t %.3f (%.3f), \n" + ...
-            "M-2P:\t %.3f (%.3f),\n" + ...
+            "M-2S:\t %.3f (%.3f),\n" + ...
             "M-3L:\t %.3f (%.3f), \t M-3Q:\t %.3f (%.3f),\n" + ...
             "Ssa:\t %.3f (%.3f), \t Ssm:\t %.3f (%.3f).\n", ...
             lat(lat_ind),lon(lon_ind),toc(tic_ersst), ...
             x_1A{lon_ind,lat_ind}.cm2raw_cvRMSE,x_1A{lon_ind,lat_ind}.cm2raw_EV,x_1B{lon_ind,lat_ind}.cm2raw_cvRMSE,x_1B{lon_ind,lat_ind}.cm2raw_EV, ...
             x_2{lon_ind,lat_ind}.cm2raw_cvRMSE,x_2{lon_ind,lat_ind}.cm2raw_EV,x_2A{lon_ind,lat_ind}.cm2raw_cvRMSE,x_2A{lon_ind,lat_ind}.cm2raw_EV, ...
-            x_2P{lon_ind,lat_ind}.cm2raw_cvRMSE,x_2P{lon_ind,lat_ind}.cm2raw_EV, ...
+            x_2S{lon_ind,lat_ind}.cm2raw_cvRMSE,x_2S{lon_ind,lat_ind}.cm2raw_EV, ...
             x_3L{lon_ind,lat_ind}.cm2raw_cvRMSE,x_3L{lon_ind,lat_ind}.cm2raw_EV,x_3Q{lon_ind,lat_ind}.cm2raw_cvRMSE,x_3Q{lon_ind,lat_ind}.cm2raw_EV, ...
             x_Ssa{lon_ind,lat_ind}.cm2raw_cvRMSE,x_Ssa{lon_ind,lat_ind}.cm2raw_EV,x_Ssm{lon_ind,lat_ind}.cm2raw_cvRMSE,x_Ssm{lon_ind,lat_ind}.cm2raw_EV);
     end
@@ -360,7 +360,7 @@ for field_name = [INDICES_REAL_NAME,"trend","season","residue"]
             ersst_v5.M1B.(field_name){lon_ind,lat_ind} = x_1B{lon_ind,lat_ind}.(field_name);
             ersst_v5.M2.(field_name){lon_ind,lat_ind} = x_2{lon_ind,lat_ind}.(field_name);
             ersst_v5.M2A.(field_name){lon_ind,lat_ind} = x_2A{lon_ind,lat_ind}.(field_name);
-            ersst_v5.M2P.(field_name){lon_ind,lat_ind} = x_2P{lon_ind,lat_ind}.(field_name);
+            ersst_v5.M2S.(field_name){lon_ind,lat_ind} = x_2S{lon_ind,lat_ind}.(field_name);
             ersst_v5.M3L.(field_name){lon_ind,lat_ind} = x_3L{lon_ind,lat_ind}.(field_name);
             ersst_v5.M3Q.(field_name){lon_ind,lat_ind} = x_3Q{lon_ind,lat_ind}.(field_name);
             ersst_v5.Ssa.(field_name){lon_ind,lat_ind} = x_Ssa{lon_ind,lat_ind}.(field_name);
@@ -839,14 +839,14 @@ function [x_trend,x_season,x_res] = M2_A(t,x,span,trend_deg,lwlr_annual,cat_ind_
     return;
 end
 
-%% Method-2P
+%% Method-2S
 % like method-2 (Pezzulli, S., 2005), but use spectral method (Narapusetty,
 % 2009) to determine seasonal component.
 
-function [x_trend,x_season,x_res] = M2_P(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
-%M2P - classical decomposition method-2P
+function [x_trend,x_season,x_res] = M2_S(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
+%M2S - classical decomposition method-2S
 %
-% Syntax: [x_trend,x_annual,x_res] = M2_P(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
+% Syntax: [x_trend,x_annual,x_res] = M2_S(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
 %
 % The algorithm consists of an alternate trend estimation on seasonally
 % adjusted series and seasonal estimation on the trend-adjusted one.
@@ -1103,8 +1103,8 @@ function [x_fit] = M2_A_cv(t,x,t_istest,span,trend_deg,lwlr_annual,cat_ind_cell)
     return;
 end
 
-function [x_fit] = M2_P_cv(t,x,t_istest,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
-% M2_A_cv - cross validation for Method-2P
+function [x_fit] = M2_S_cv(t,x,t_istest,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell)
+% M2_A_cv - cross validation for Method-2S
 % description
     arguments
         t
@@ -1135,7 +1135,7 @@ function [x_fit] = M2_P_cv(t,x,t_istest,span,trend_deg,lwlr_annual,T_annual,h,ca
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M2_P(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
+    [x_trend,x_season,x_residue] = M2_S(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
     x_fit.residue = x_residue;
