@@ -20,10 +20,11 @@ simple_test();
 
 %% Exp. 1 (ideal series)
 
-export_fig_EN = true;
-create_fig_EN = true;
+export_fig_EN = false;
+create_fig_EN = false;
 ideal_solve_EN = false;
 
+METHOD_NAME = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2S","M-3L","M-3Q","Ssa","Ssm"];
 INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","res_mean"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
@@ -98,7 +99,7 @@ for i = 1:length(x_trend)
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
-    test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
+    test2_ideal_plot(METHOD_NAME,sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
         results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
@@ -121,7 +122,7 @@ for i = 1:length(x_trend)
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
-    test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
+    test2_ideal_plot(METHOD_NAME,sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
         results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
@@ -144,7 +145,7 @@ for i = 1:length(x_trend)
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
-    test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
+    test2_ideal_plot(METHOD_NAME,sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
         results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
@@ -183,7 +184,7 @@ for i = 1:length(x_trend)
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
-    test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
+    test2_ideal_plot(METHOD_NAME,sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
         results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
@@ -222,7 +223,7 @@ for i = 1:length(x_trend)
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
-    test2_ideal_plot(sprintf("%s_%d",case_name,i),mat_file_path, ...
+    test2_ideal_plot(METHOD_NAME,sprintf("%s_%d",case_name,i),mat_file_path, ...
         sprintf("\\bf Ideal Case %d",cnt_case),create_fig_EN,export_fig_EN);
     for indices_name = INDICES_IDEAL_NAME
         results_ideal.(indices_name)(end+1,:) = {sprintf("%s_%d",case_name,i),x_1A{cnt_case}.(indices_name),x_1B{cnt_case}.(indices_name),x_2{cnt_case}.(indices_name),x_2A{cnt_case}.(indices_name),x_2S{cnt_case}.(indices_name),x_3L{cnt_case}.(indices_name),x_3Q{cnt_case}.(indices_name),x_Ssa{cnt_case}.(indices_name),x_Ssm{cnt_case}.(indices_name)};
@@ -291,6 +292,8 @@ time_month = (datetime(1854,1,15) + calmonths(0:size(sst,3)-1)).';
 
 start_time = datetime(1902,1,1);
 end_time = datetime(2021,12,30);
+ersst_v5.start_month = "190201";
+ersst_v5.end_month = "202112";
 
 TF_lon_range = lon > -Inf & lon < +Inf;
 TF_lat_range = lat > -Inf & lat < +Inf;
@@ -304,6 +307,7 @@ lon = lon(TF_lon_range);
 lat = lat(TF_lat_range);
 time_month = time_month(TF_time_range);
 sst = sst(TF_lon_range,TF_lat_range,TF_time_range);
+ersst_v5.raw = sst;
 
 t = (1:length(time_month)).';  % [month]. 1 = Jan 1902; 2 = Feb 1902; ...
 cat_ind_cell = cell(12,1);
@@ -372,12 +376,8 @@ end
 %% 
 
 if save_mat_EN
-    mat_file_path = "../bin/test2/"+bin_folder_name;
-    if isfile(mat_file_path)
-        save(mat_file_path,"ersst_v5",'-append');
-    else
-        save(mat_file_path,"ersst_v5",'-v7.3');
-    end
+    mat_file_path = "../bin/test2/" + bin_folder_name;
+    save(mat_file_path,"ersst_v5",'-v7.3');
 end
 
 %% local functions
