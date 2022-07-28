@@ -9,13 +9,13 @@
 % 1) raw & ideal trend,
 % 2) extracted trend (several),
 % 3) extracted season (several),
-% 4) residue (several).
+% 4) residual (several).
 
 %% II. real indices
 % 1) raw vs. extracted trend (several),
 % 2) extracted trend (several),
 % 3) extracted season (several),
-% 4) residue (several).
+% 4) residual (several).
 
 %% real indices: () -> ()
 
@@ -71,6 +71,7 @@ end
 
 METHOD_NAME = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
 CV_FUNC_HANDLER = {M1_A_cv,M1_B_cv,M2_cv,M2_A_cv,M2_S_cv,M3_cv,M3_cv,M1_A_cv,M3_cv};
+COMPONENT_NAME = ["trend","season","residual"];
 
 for i = 1:length(METHOD_NAME)
     CV_FUNC.(METHOD_NAME(i)) = CV_FUNC_HANDLER{i};
@@ -86,15 +87,15 @@ end
 
 %% additive classical decomposition
 
-[output.M1A.trend,output.M1A.season,output.M1A.residue] = M1_A(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
-[output.M1B.trend,output.M1B.season,output.M1B.residue] = M1_B(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
-[output.M2.trend,output.M2.season,output.M2.residue] = M2(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
-[output.M2A.trend,output.M2A.season,output.M2A.residue] = M2_A(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
-[output.M2S.trend,output.M2S.season,output.M2S.residue] = M2_S(t,x.raw,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
-[output.M3L.trend,output.M3L.season,output.M3L.residue] = M3(t,x.raw,T_annual,h,1);
-[output.M3Q.trend,output.M3Q.season,output.M3Q.residue] = M3(t,x.raw,T_annual,h,2);
-[output.Ssa.trend,output.Ssa.season,output.Ssa.residue] = M1_A(t,x.raw,+Inf,0,lwlr_annual,cat_ind_cell);
-[output.Ssm.trend,output.Ssm.season,output.Ssm.residue] = M3(t,x.raw,T_annual,h,0);
+[output.M1A.trend,output.M1A.season,output.M1A.residual] = M1_A(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
+[output.M1B.trend,output.M1B.season,output.M1B.residual] = M1_B(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
+[output.M2.trend,output.M2.season,output.M2.residual] = M2(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
+[output.M2A.trend,output.M2A.season,output.M2A.residual] = M2_A(t,x.raw,span,trend_deg,lwlr_annual,cat_ind_cell);
+[output.M2S.trend,output.M2S.season,output.M2S.residual] = M2_S(t,x.raw,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
+[output.M3L.trend,output.M3L.season,output.M3L.residual] = M3(t,x.raw,T_annual,h,1);
+[output.M3Q.trend,output.M3Q.season,output.M3Q.residual] = M3(t,x.raw,T_annual,h,2);
+[output.Ssa.trend,output.Ssa.season,output.Ssa.residual] = M1_A(t,x.raw,+Inf,0,lwlr_annual,cat_ind_cell);
+[output.Ssm.trend,output.Ssm.season,output.Ssm.residual] = M3(t,x.raw,T_annual,h,0);
 
 %% Analysis
 
@@ -115,22 +116,41 @@ end
 
 for m_name = METHOD_NAME
    output.(m_name).season_mean = mean(output.(m_name).season,"omitnan");
-   output.(m_name).res_mean = mean(output.(m_name).residue,"omitnan");
+   output.(m_name).residual_mean = mean(output.(m_name).residual,"omitnan");
 end
 
-%%% 2. The fraction of variance explained (EV) by the trend + annual cycle (climatological mean?)
+%%% 2. The fraction of variance explained (EV) by the each component and
+% trend + annual cycle (climatological mean?)
 
 for m_name = METHOD_NAME
     output_cm = output.(m_name).trend + output.(m_name).season;
     x_raw_mean = mean(x.raw,"omitnan");
+    raw_minus_mean_square = sum((x.raw - x_raw_mean).^2,"omitnan");
+    % 1. EV of trend + annual cycle (climatological mean?)
     if all(~isnan(output_cm))
-        output.(m_name).cm2raw_EV = 1 - sum((x.raw - output_cm).^2,"omitnan")/sum((x.raw - x_raw_mean).^2,"omitnan");
+        output.(m_name).cm2raw_EV = 1 - sum((x.raw - output_cm).^2,"omitnan")/raw_minus_mean_square;
+        % Check: EV is valid?
         if output.(m_name).cm2raw_EV < 0 || output.(m_name).cm2raw_EV > 1
             fprintf("Invalid cm2raw_EV:\t %.2g\n",output.(m_name).cm2raw_EV)
-            output.(m_name).cm2raw_EV = NaN;
+%             output.(m_name).cm2raw_EV = NaN;
         end
     else
         output.(m_name).cm2raw_EV = NaN;
+    end
+    
+    % 2. EV of trend, season and residual
+    for component_name = COMPONENT_NAME
+        if all(~isnan(output.(m_name).(component_name)))
+            output.(m_name).(component_name + "_EV") = 1 - sum((x.raw - output.(m_name).(component_name)).^2,"omitnan")/raw_minus_mean_square;
+            if ~strcmpi(component_name,"trend")
+                output.(m_name).(component_name + "_aEV") = 1 - sum((x.raw - output.(m_name).(component_name) - output.(m_name).trend).^2,"omitnan")/raw_minus_mean_square;
+            end
+        else
+            output.(m_name).(component_name + "_EV") = NaN;
+            if ~strcmpi(component_name,"trend")
+                output.(m_name).(component_name + "_aEV") = NaN;
+            end
+        end
     end
 end
 

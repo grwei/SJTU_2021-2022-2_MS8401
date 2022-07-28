@@ -9,7 +9,7 @@
 % 1) raw & ideal trend,
 % 2) extracted trend (several),
 % 3) extracted season (several),
-% 4) residue (several).
+% 4) residual (several).
 
 %%
 
@@ -34,7 +34,7 @@ indices_name_group = ["res2res_RMSE","res2res_CC";
                       "cm2cm_RMSE","cm2cm_CC";
                       "cm2raw_RMSE","cm2raw_CC";
                       "cm2cm_cvRMSE","cm2raw_cvRMSE";
-                      "season_mean","res_mean";
+                      "season_mean","residual_mean";
                       "cm2raw_EV",""];
 title_group = ["\bf Residual: output vs. ideal","";
                "\bf Climatological mean: output vs. ideal","";
@@ -48,7 +48,7 @@ ylabel_group = ["RMSE (℃)","Corr. Coeff.";
                 "Cross-validated RMSE (℃)","Cross-validated RMSE (℃)";
                 "-log_{10}(abs(value))","-log_{10}(abs(value))";
                 "Variance Explained",""];
-fig_name = "ideal_" + ["res2res";"cm2cm";"cm2raw";"cross_validation";"season_res_mean";"cm2raw_EV"];
+fig_name = "ideal_" + ["res2res";"cm2cm";"cm2raw";"cross_validation";"season_residual_mean";"cm2raw_EV"];
 file_name = fig_name;
 
 for i = 1:length(fig_name)
@@ -84,7 +84,7 @@ end
 
 % 1.
 t_axes = nexttile(t_TCL,1);
-if indices_name1 == "season_mean" || indices_name1 == "res_mean"
+if indices_name1 == "season_mean" || indices_name1 == "residual_mean"
     Bar = bar(t_axes,-log10(abs(indices_table1{:,2:end-2})));
 else
     Bar = bar(t_axes,indices_table1{:,2:end-2});
@@ -117,7 +117,7 @@ end
 
 % 2.
 t_axes = nexttile(t_TCL,2);
-if indices_name2 == "season_mean" || indices_name2 == "res_mean"
+if indices_name2 == "season_mean" || indices_name2 == "residual_mean"
     bar(t_axes,-log10(abs(indices_table2{:,2:end-2})));
 else
     bar(t_axes,indices_table2{:,2:end-2});

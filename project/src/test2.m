@@ -20,13 +20,13 @@ simple_test();
 
 %% Exp. 1 (ideal series)
 
-export_fig_EN = false;
+export_fig_EN = true;
 create_fig_EN = false;
 ideal_solve_EN = false;
 
 METHOD_NAME = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2S","M-3L","M-3Q","Ssa","Ssm"];
-INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","res_mean"];
+INDICES_IDEAL_NAME = ["res2res_RMSE","res2res_CC","cm2cm_RMSE","cm2cm_CC","cm2raw_RMSE","cm2raw_CC","cm2raw_EV","cm2cm_cvRMSE","cm2raw_cvRMSE","season_mean","residual_mean","trend_EV","season_EV","residual_EV","season_aEV","residual_aEV"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 bin_folder_name = "ideal";
 
@@ -48,8 +48,10 @@ for indices_name = INDICES_IDEAL_NAME
     results_ideal.(indices_name).Properties.Description = indices_name;
 end
 
+N_CASE = 10;  % total cases
 cnt_case = 0;
-x_1A = cell(10,1);
+x_original = cell(N_CASE,1);
+x_1A = x_original;
 x_1B = x_1A;
 x_2 = x_1A;
 x_2A = x_1A;
@@ -87,15 +89,14 @@ x_noise = std_noise * randn(size(t));
 %% Exp. 1.1.1 (noise)
 
 case_name = "ideal_1";
-x = cell(2,1);
 for i = 1:length(x_trend)
     cnt_case = cnt_case + 1;
     mat_file_path = sprintf("%s\\%s_%d",bin_folder_name,case_name,i);
-    x{i}.season = x_annual;
-    x{i}.trend = x_trend{i};
-    x{i}.raw = x_trend{i} + x_annual + x_noise;
-    x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    x_original{cnt_case}.season = x_annual;
+    x_original{cnt_case}.trend = x_trend{i};
+    x_original{cnt_case}.raw = x_trend{i} + x_annual + x_noise;
+    x_original{cnt_case}.residual = x_original{cnt_case}.raw - x_original{cnt_case}.trend - x_original{cnt_case}.season;
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x_original{cnt_case},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
@@ -110,15 +111,15 @@ end
 %% Exp. 1.1.2 (inter-annual)
 
 case_name = "ideal_2";
-x = cell(2,1);
+
 for i = 1:length(x_trend)
     cnt_case = cnt_case + 1;
     mat_file_path = sprintf("%s\\%s_%d",bin_folder_name,case_name,i);
-    x{i}.season = x_annual;
-    x{i}.trend = x_trend{i};
-    x{i}.raw = x_trend{i} + x_annual + x_inter_an;
-    x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    x_original{cnt_case}.season = x_annual;
+    x_original{cnt_case}.trend = x_trend{i};
+    x_original{cnt_case}.raw = x_trend{i} + x_annual + x_inter_an;
+    x_original{cnt_case}.residual = x_original{cnt_case}.raw - x_original{cnt_case}.trend - x_original{cnt_case}.season;
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x_original{cnt_case},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
@@ -133,15 +134,14 @@ end
 %% Exp. 1.1.3 (inter-annual + noise)
 
 case_name = "ideal_3";
-x = cell(2,1);
 for i = 1:length(x_trend)
     cnt_case = cnt_case + 1;
     mat_file_path = sprintf("%s\\%s_%d",bin_folder_name,case_name,i);
-    x{i}.season = x_annual;
-    x{i}.trend = x_trend{i};
-    x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
-    x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    x_original{cnt_case}.season = x_annual;
+    x_original{cnt_case}.trend = x_trend{i};
+    x_original{cnt_case}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
+    x_original{cnt_case}.residual = x_original{cnt_case}.raw - x_original{cnt_case}.trend - x_original{cnt_case}.season;
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x_original{cnt_case},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
@@ -172,15 +172,14 @@ x_noise = std_noise * randn(size(t));
 
 %%%
 
-x = cell(2,1);
 for i = 1:length(x_trend)
     cnt_case = cnt_case + 1;
     mat_file_path = sprintf("%s\\%s_%d",bin_folder_name,case_name,i);
-    x{i}.season = x_annual;
-    x{i}.trend = x_trend{i};
-    x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
-    x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    x_original{cnt_case}.season = x_annual;
+    x_original{cnt_case}.trend = x_trend{i};
+    x_original{cnt_case}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
+    x_original{cnt_case}.residual = x_original{cnt_case}.raw - x_original{cnt_case}.trend - x_original{cnt_case}.season;
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x_original{cnt_case},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
@@ -211,15 +210,14 @@ x_noise = std_noise * randn(size(t));
 
 %%%
 
-x = cell(2,1);
 for i = 1:length(x_trend)
     cnt_case = cnt_case + 1;
     mat_file_path = sprintf("%s\\%s_%d",bin_folder_name,case_name,i);
-    x{i}.season = x_annual;
-    x{i}.trend = x_trend{i};
-    x{i}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
-    x{i}.residue = x{i}.raw - x{i}.trend - x{i}.season;
-    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x{i},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
+    x_original{cnt_case}.season = x_annual;
+    x_original{cnt_case}.trend = x_trend{i};
+    x_original{cnt_case}.raw = x_trend{i} + x_annual + x_inter_an + x_noise;
+    x_original{cnt_case}.residual = x_original{cnt_case}.raw - x_original{cnt_case}.trend - x_original{cnt_case}.season;
+    [x_1A{cnt_case},x_1B{cnt_case},x_2{cnt_case},x_2A{cnt_case},x_2S{cnt_case},x_3L{cnt_case},x_3Q{cnt_case},x_Ssa{cnt_case},x_Ssm{cnt_case}] = test2_ideal(t,x_original{cnt_case},span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell, ...
         @M1_A,@M1_B,@M2,@M2_A,@M2_S,@M3, ...
         @M1_A_cv,@M1_B_cv,@M2_cv,@M2_A_cv,@M2_S_cv,@M3_cv, ...
         mat_file_path,ideal_solve_EN);
@@ -231,17 +229,46 @@ for i = 1:length(x_trend)
     fprintf("\\bf Ideal Case %d: total time = %.1f secs.\n",cnt_case,toc(tic_ideal));
 end
 
-%%
+%% summary
 
-if isfile("../bin/test2/test2.mat")
-    save("../bin/test2/test2.mat","results_ideal",'-append');
-else
-    save("../bin/test2/test2.mat","results_ideal",'-v7.3');
+ideal_summary.description = "sst(case_num,time)";
+ideal_summary.METHOD_NAME = METHOD_NAME;
+ideal_summary.METHOD_DISP_NAME = METHOD_DISP_NAME;
+ideal_summary.INDICES_NAME = INDICES_IDEAL_NAME;
+ideal_summary.INDICES_VAR_TYPES = INDICES_VAR_TYPES;
+ideal_summary.t = t;
+ideal_summary.case_num = 1:cnt_case;
+ideal_summary.cat_ind_cell = cat_ind_cell;
+for case_num = 1:length(ideal_summary.case_num)
+    ideal_summary.sst_ideal(case_num,:) = x_original{case_num}.raw;
+    ideal_summary.season_ideal(case_num,:) = x_original{case_num}.season;
+    ideal_summary.trend_ideal(case_num,:) = x_original{case_num}.trend;
+    ideal_summary.residual_ideal(case_num,:) = x_original{case_num}.residual;
+    for field_name = [INDICES_IDEAL_NAME,"trend","season","residual"]
+        ideal_summary.M1A.(field_name){case_num,1} = x_1A{case_num,1}.(field_name);
+        ideal_summary.M1B.(field_name){case_num,1} = x_1B{case_num,1}.(field_name);
+        ideal_summary.M2.(field_name){case_num,1} = x_2{case_num,1}.(field_name);
+        ideal_summary.M2A.(field_name){case_num,1} = x_2A{case_num,1}.(field_name);
+        ideal_summary.M2S.(field_name){case_num,1} = x_2S{case_num,1}.(field_name);
+        ideal_summary.M3L.(field_name){case_num,1} = x_3L{case_num,1}.(field_name);
+        ideal_summary.M3Q.(field_name){case_num,1} = x_3Q{case_num,1}.(field_name);
+        ideal_summary.Ssa.(field_name){case_num,1} = x_Ssa{case_num,1}.(field_name);
+        ideal_summary.Ssm.(field_name){case_num,1} = x_Ssm{case_num,1}.(field_name);
+    end
 end
 
 %%
 
+save("../bin/test2/test2.mat","results_ideal",'-v7.3');
+save("../bin/test2/ideal_summary.mat",'ideal_summary',"results_ideal",'-v7.3');
+
+%%
+
 test2_plot1(create_fig_EN,export_fig_EN);
+fprintf("Ideal exp. finished.\n" + ...
+    "Press any key to continue...\n" + ...
+    "or Ctrl+C (Shift+F5) to stop running.\n")
+pause;
 
 %% Exp. 2 (real time-indices)
 
@@ -254,7 +281,7 @@ save_mat_EN = false;
 
 METHOD_NAME = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
 METHOD_DISP_NAME = ["M-1A","M-1B","M-2","M-2A","M-2S","M-3L","M-3Q","Ssa","Ssm"];
-INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV","season_mean","res_mean"];
+INDICES_REAL_NAME = ["cm2raw_RMSE","cm2raw_CC","cm2raw_cvRMSE","cm2raw_EV","season_mean","residual_mean","trend_EV","season_EV","residual_EV","season_aEV","residual_aEV"];
 INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 
 cnt_case = 0;
@@ -357,7 +384,7 @@ ersst_v5.INDICES_VAR_TYPES = INDICES_VAR_TYPES;
 ersst_v5.t = t;
 ersst_v5.lon = lon;
 ersst_v5.lat = lat;
-for field_name = [INDICES_REAL_NAME,"trend","season","residue"]
+for field_name = [INDICES_REAL_NAME,"trend","season","residual"]
     for lon_ind = 1:size(sst,1)
         for lat_ind = 1:size(sst,2)
             ersst_v5.M1A.(field_name){lon_ind,lat_ind} = x_1A{lon_ind,lat_ind}.(field_name);
@@ -516,7 +543,7 @@ function [mu,season_series,season_main] = season_simple(x,cat_ind_cell)
     
     season_series = nan(size(x));
     for i = 1:length(cat_ind_cell)
-        season_series(cat_ind_cell{i}) = season_main(i);
+        season_series(cat_ind_cell{i}) = season_main(i); % Note: zero mean.
     end
 
     return;
@@ -942,11 +969,11 @@ function [x_1A,x_1B,x_2,x_2A,x_3] = simple_test(t,x,span)
         cat_ind_cell{i,1} = i:12:length(x);
     end
     
-    [x_1A.trend,x_1A.season,x_1A.residue] = M1_A(t,x,span);
-    [x_1B.trend,x_1B.season,x_1B.residue] = M1_B(t,x,span);
-    [x_2.trend,x_2.season,x_2.residue] = M2(t,x,span);
-    [x_2A.trend,x_2A.season,x_2A.residue] = M2_A(t,x,span);
-    [x_3.trend,x_3.season,x_3.residue] = M3(t,x,12,2);
+    [x_1A.trend,x_1A.season,x_1A.residual] = M1_A(t,x,span);
+    [x_1B.trend,x_1B.season,x_1B.residual] = M1_B(t,x,span);
+    [x_2.trend,x_2.season,x_2.residual] = M2(t,x,span);
+    [x_2A.trend,x_2A.season,x_2A.residual] = M2_A(t,x,span);
+    [x_3.trend,x_3.season,x_3.residual] = M3(t,x,12,2);
 end
 
 %% Cross-validation
@@ -981,10 +1008,10 @@ function [x_fit] = M1_A_cv(t,x,t_istest,span,trend_deg,lwlr_annual,cat_ind_cell)
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M1_A(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
+    [x_trend,x_season,x_residual] = M1_A(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1019,10 +1046,10 @@ function [x_fit] = M1_B_cv(t,x,t_istest,span,trend_deg,lwlr_annual,cat_ind_cell)
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M1_B(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
+    [x_trend,x_season,x_residual] = M1_B(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1057,10 +1084,10 @@ function [x_fit] = M2_cv(t,x,t_istest,span,trend_deg,lwlr_annual,cat_ind_cell)
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M2(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
+    [x_trend,x_season,x_residual] = M2(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1095,10 +1122,10 @@ function [x_fit] = M2_A_cv(t,x,t_istest,span,trend_deg,lwlr_annual,cat_ind_cell)
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M2_A(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
+    [x_trend,x_season,x_residual] = M2_A(t,x,span,trend_deg,lwlr_annual,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1135,10 +1162,10 @@ function [x_fit] = M2_S_cv(t,x,t_istest,span,trend_deg,lwlr_annual,T_annual,h,ca
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M2_S(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
+    [x_trend,x_season,x_residual] = M2_S(t,x,span,trend_deg,lwlr_annual,T_annual,h,cat_ind_cell);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1169,10 +1196,10 @@ function [x_fit] = M3_cv(t,x,t_istest,T_annual,h,trend_deg)
     if any(t_istest)
         x(t_istest) = NaN;
     end
-    [x_trend,x_season,x_residue] = M3(t,x,T_annual,h,trend_deg);
+    [x_trend,x_season,x_residual] = M3(t,x,T_annual,h,trend_deg);
     x_fit.trend = x_trend;
     x_fit.season = x_season;
-    x_fit.residue = x_residue;
+    x_fit.residual = x_residual;
 
     return;
 end
@@ -1204,10 +1231,10 @@ function M12_cv_handle = M12_cv_handle_gen(M12_HANDLE)
         if any(t_istest)
             x(t_istest) = NaN;
         end
-        [x_trend,x_season,x_residue] = M12_HANDLE(t,x,span,lwlr_annual,cat_ind_cell);
+        [x_trend,x_season,x_residual] = M12_HANDLE(t,x,span,lwlr_annual,cat_ind_cell);
         x_fit.trend = x_trend;
         x_fit.season = x_season;
-        x_fit.residue = x_residue;
+        x_fit.residual = x_residual;
     
         return;
     end

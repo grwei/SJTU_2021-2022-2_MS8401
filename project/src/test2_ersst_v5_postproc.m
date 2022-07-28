@@ -18,7 +18,7 @@ load(mat_file_path,'ersst_v5');
 
 %%
 create_fig_EN = false;
-export_fig_EN = false;
+export_fig_EN = true;
 METHOD_NAME = ersst_v5.METHOD_NAME;
 METHOD_DISP_NAME = ersst_v5.METHOD_DISP_NAME;
 INDICES_REAL_NAME = ersst_v5.INDICES_NAME;
@@ -43,7 +43,7 @@ for k = 1:length(season_mean.method_name)
     for i = 1:length(lon)
         for j = 1:length(lat)
             season_mean.(method_name)(i,j) = mean(ersst_v5.(method_name).season{i,j},"omitnan");
-            residual_mean.(method_name)(i,j) = mean(ersst_v5.(method_name).residue{i,j},"omitnan");
+            residual_mean.(method_name)(i,j) = mean(ersst_v5.(method_name).residual{i,j},"omitnan");
         end
     end
 end
@@ -76,8 +76,8 @@ for k = 1:length(season_diff.method_name)
         for j = 1:length(lat)
             season_diff.(field_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
             season_diff.(field_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            residual_diff.(field_name).max(i,j) = max(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
-            residual_diff.(field_name).min(i,j) = min(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
+            residual_diff.(field_name).max(i,j) = max(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
+            residual_diff.(field_name).min(i,j) = min(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
         end
     end
     [season_diff.(field_name).max_diff_value,season_diff.(field_name).max_diff_linear_ind] = maxk(max(season_diff.(field_name).max(:),season_diff.(field_name).min(:), ...
@@ -92,8 +92,8 @@ end
 
 %% additional
 
-method_name = ["M1B","M1A","M1B","M1A","M1B","M2S"];
-ref_method_name = ["M1A","M2S","M2S","M2A","M2A","M2A"];
+method_name = ["M1B","M1A","M1B","M1A","M1B","M2S","Ssa"];
+ref_method_name = ["M1A","M2S","M2S","M2A","M2A","M2A","Ssm"];
 n_max = 10; % find n_max largest elements
 %
 season_diff_ad.lon = lon;
@@ -120,8 +120,8 @@ for k = 1:length(season_diff_ad.method_name)
         for j = 1:length(lat)
             season_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
             season_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            residual_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
-            residual_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).residue{i,j} - ersst_v5.(ref_method_name).residue{i,j},[],"omitnan");
+            residual_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
+            residual_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
         end
     end
     %%% find max. diff. index
@@ -143,8 +143,9 @@ end
 
 %% Create figure: single station
 
-[output_diff] = ersst_single_station_graph(ersst_v5,residual_diff,create_fig_EN,export_fig_EN);
-[output_diff_ad] = ersst_single_station_graph(ersst_v5,residual_diff_ad,create_fig_EN,export_fig_EN);
+[output_diff_residual] = ersst_single_station_graph(ersst_v5,residual_diff,"residual",create_fig_EN,export_fig_EN);
+[output_diff_residual_ad] = ersst_single_station_graph(ersst_v5,residual_diff_ad,"residual",create_fig_EN,export_fig_EN);
+[output_diff_season_ad] = ersst_single_station_graph(ersst_v5,season_diff_ad,"season",create_fig_EN,export_fig_EN);
 
 %% Create figure: mean of annual cycle (season) and residual
 
@@ -198,7 +199,7 @@ end
 for i = 1:length(season_diff.method_name)
     method_name = season_diff.method_name(i);
     ref_method_name = season_diff.ref_method_name(i);
-    field_name = season_diff_ad.field_name(i);
+    field_name = season_diff.field_name(i);
     if method_name == ref_method_name
         continue;
     end
@@ -488,14 +489,14 @@ end
 
 %% Single station summary and plot
 
-function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_name,method_disp_set,fig_name,title_str,file_name,create_fig_EN,export_fig_EN)
+function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_name,method_disp_set,star_component_name,fig_name,title_str,file_name,create_fig_EN,export_fig_EN)
 %ersst_single_station - For single station data, solve for the differences between methods and plot
 %
 % Syntax: 
 %
 % For single station data, solve for the differences between methods and
 % plot them. Calculate the difference between two of all methods, and show
-% the output of the two methods specified in the plot.
+% the output of the two specified methods in the graph.
     arguments
         ersst_v5
         lon = 0;
@@ -503,6 +504,7 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
         m_1_name = "M1A";   % method-1 show in the plot
         m_ref_name = "M1B"; % method-ref show in the plot
         method_disp_set = [m_1_name,m_ref_name];
+        star_component_name = "Residual";
         fig_name = sprintf("ersst_v5_%gN_%gE_%s_%s",lat,lon,m_1_name,m_ref_name);
         title_str = sprintf("\\bf ERSST v5 (1902-2021) %g°N %g°E",lat,lon);
         file_name = sprintf("ersst_v5\\%s",fig_name);
@@ -516,9 +518,25 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     [~,lat_ind] = min(lat - ersst_v5.lat,[],'omitnan','ComparisonMethod','abs');
     t = ersst_v5.t;
     x.raw = squeeze(ersst_v5.raw(lon_ind,lat_ind,:));
+    if ~iscolumn(x.raw)
+        x.raw = x.raw.';
+    end
+    raw_minus_mean_square = sum((x.raw - mean(x.raw,"omitnan")).^2,"omitnan");
     for method_name = ersst_v5.METHOD_NAME
-        for component_name = ["trend","season","residue"]
+        for component_name = ["trend","season","residual"]
+            % summary
             output.(method_name).(component_name) = ersst_v5.(method_name).(component_name){lon_ind,lat_ind};
+            if ~iscolumn(output.(method_name).(component_name))
+                output.(method_name).(component_name) = output.(method_name).(component_name).';
+            end
+            % compute adjusted Explained Variance (aEV) of each component
+            % (plus trend). "adjusted" means that, when determining the EV,
+            % the output trend is added to this component unless this
+            % component itself is the output trend.
+            if strcmpi(component_name,"trend")
+                output.(method_name).(component_name+"_EV") = 1 - sum((x.raw - output.(method_name).(component_name)).^2,"omitnan")/raw_minus_mean_square;
+            end
+            output.(method_name).(component_name+"_aEV") = 1 - sum((x.raw - output.(method_name).(component_name) - output.(method_name).trend).^2,"omitnan")/raw_minus_mean_square;
         end
     end
     M_1_DISP_NAME = ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME == m_1_name);
@@ -533,7 +551,7 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
         method_name = ersst_v5.METHOD_NAME(i);
         for j = i+1:length(ersst_v5.METHOD_NAME)
             ref_method_name = ersst_v5.METHOD_NAME(j);
-            for component_name = ["trend","season","residue"]
+            for component_name = ["trend","season","residual"]
                 field_name = method_name + "_" + ref_method_name + "_" + component_name;
                 m_minus_mref = ersst_v5.(method_name).(component_name){lon_ind,lat_ind} - ersst_v5.(ref_method_name).(component_name){lon_ind,lat_ind};
                 [output_diff.(field_name).maxk,output_diff.(field_name).maxk_ind] = maxk(m_minus_mref,k_max);
@@ -552,6 +570,10 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
         M_FIELD_NAME = m_1_name + "_" + m_ref_name;
     end
 
+    if ~isfield(output_diff, M_FIELD_NAME+"_trend")
+        return;
+    end
+
     %% create figure
 
     if ~create_fig_EN
@@ -561,25 +583,27 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     marker_size = 0.58;
     graph_res = 1000;
 
-    ticks_x = t(1:240:end);
+    ticks_x = t(1:180:end);
     label_x = floor(ticks_x/12) + str2double(extractBetween(ersst_v5.start_month,1,4));
 
     figure('Name',fig_name)
     t_TCL = tiledlayout(4,1,"TileSpacing","tight","Padding","compact");
     
-    method_name_set = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q"];
-    line_spec_set = ["-","-",":","--","-.","x","+"];
+    method_name_set = ["M1A","M1B","M2","M2A","M2S","M3L","M3Q","Ssa","Ssm"];
+    line_spec_order = ["-","-",":","--","-.","x","+"];
     
     % 1. raw & extracted trend (selected)
     t_axes = nexttile(t_TCL,1);
-    plot(t_axes,t,x.raw,'-',"DisplayName",'raw SST');
     hold on
+    m_cnt = 0;
     for i = 1:length(method_name_set)
         method_name = method_name_set(i);
         if ismember(method_name,method_disp_set)
-            plot(t_axes,t,output.(method_name).trend,line_spec_set(i),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
+            m_cnt = m_cnt + 1;
+            plot(t_axes,t,output.(method_name).trend,line_spec_order(m_cnt),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
         end
     end
+    plot(t_axes,t,x.raw,'-',"DisplayName",'raw SST');
     hold off
     set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XTickLabel',{},'XLimitMethod','tight');
     xticks(t_axes,ticks_x);
@@ -589,36 +613,51 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     % 2. extracted trend (selected)
     
     output_diff_field_name = M_FIELD_NAME+"_trend";
+    if strcmpi(star_component_name,"Trend")
+        star_str = "*";
+    else
+        star_str = "";
+    end
     t_axes = nexttile(t_TCL,2);
     % plot(t_axes,t,x.raw-x.season,'-',"DisplayName",'ideal deseason');
     hold on
+    m_cnt = 0;
     for i = 1:length(method_name_set)
         method_name = method_name_set(i);
         if ismember(method_name,method_disp_set)
-            plot(t_axes,t,output.(method_name).trend,line_spec_set(i),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
+            m_cnt = m_cnt + 1;
+            plot(t_axes,t,output.(method_name).trend,line_spec_order(m_cnt),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
         end
     end
     set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XTickLabel',{},'XLimitMethod','tight');
-    legend(t_axes,'box','off','Orientation','vertical','NumColumns',4,'Location','best');
+    legend(t_axes,'box','off','Orientation','vertical','Location','best','NumColumns',2);
     xticks(t_axes,ticks_x);
     xticklabels(t_axes,{});
-    ylabel(t_axes,"Trend (℃)","FontSize",10);
-    title(sprintf("\\bf Trend. \\rm (%s minus %s: %.2e @ {\\it t} = %d, %.2e @ {\\it t} = %d)", ...
-        M_1_DISP_NAME,M_REF_DISP_NAME, ...
+    ylabel(t_axes,"(℃)","FontSize",10);
+    title(sprintf("\\bf %sTrend. \\rm (%s minus %s:  %.2e, {\\it t} = %d; %.2e, {\\it t} = %d.  EV: %.2f, %.2f)", ...
+        star_str,M_1_DISP_NAME,M_REF_DISP_NAME, ...
         output_diff.(output_diff_field_name).maxk(1),output_diff.(output_diff_field_name).maxk_ind(1), ...
-        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1)), ...
+        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1), ...
+        output.(m_1_name).trend_EV,output.(m_ref_name).trend_EV), ...
         "FontSize",10,'FontName','Times New Roman');
 
-    % 3. extracted residue (selected)
+    % 3. extracted residual (selected)
 
-    output_diff_field_name = M_FIELD_NAME+"_residue";
+    output_diff_field_name = M_FIELD_NAME+"_residual";
+    if strcmpi(star_component_name,"residual")
+        star_str = "*";
+    else
+        star_str = "";
+    end
     t_axes = nexttile(t_TCL,3);
-    % plot(t_axes,t,x.residue,'-',"DisplayName",'ideal deseason');
+    % plot(t_axes,t,x.residual,'-',"DisplayName",'ideal deseason');
     hold on
+    m_cnt = 0;
     for i = 1:length(method_name_set)
         method_name = method_name_set(i);
         if ismember(method_name,method_disp_set)
-            plot(t_axes,t,output.(method_name).residue,line_spec_set(i),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
+            m_cnt = m_cnt + 1;
+            plot(t_axes,t,output.(method_name).residual,line_spec_order(m_cnt),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
         end
     end
     set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XLimitMethod','tight');
@@ -626,34 +665,43 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     xticks(t_axes,ticks_x);
     xticklabels(t_axes,label_x)
     % xlabel(t_axes,"year","FontSize",10)
-    ylabel(t_axes,"Residual (℃)","FontSize",10)
-    title(sprintf("\\bf Residual. \\rm (%s minus %s: %.2e @ {\\it t} = %d, %.2e @ {\\it t} = %d)", ...
-        M_1_DISP_NAME,M_REF_DISP_NAME, ...
+    ylabel(t_axes,"(℃)","FontSize",10)
+    title(sprintf("\\bf %sResidual. \\rm (%s minus %s:  %.2e, {\\it t} = %d; %.2e, {\\it t} = %d.  aEV: %.2f, %.2f)", ...
+        star_str,M_1_DISP_NAME,M_REF_DISP_NAME, ...
         output_diff.(output_diff_field_name).maxk(1),output_diff.(output_diff_field_name).maxk_ind(1), ...
-        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1)), ...
+        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1), ...
+        output.(m_1_name).residual_aEV,output.(m_ref_name).residual_aEV), ...
         "FontSize",10,'FontName','Times New Roman');
 
     % 4. extracted annual cycle (seasonal component) (several)
 
     output_diff_field_name = M_FIELD_NAME+"_season";
+    if strcmpi(star_component_name,"season")
+        star_str = "*";
+    else
+        star_str = "";
+    end
     t_axes = nexttile(t_TCL,4);
     % plot(t_axes,t,x.raw-x.trend,'-',"DisplayName",'ideal detrended');
     hold on
+    m_cnt = 0;
     for i = 1:length(method_name_set)
         method_name = method_name_set(i);
         if ismember(method_name,method_disp_set)
-            plot(t_axes,t,output.(method_name).season,line_spec_set(i),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
+            m_cnt = m_cnt + 1;
+            plot(t_axes,t,output.(method_name).season,line_spec_order(m_cnt),"DisplayName",ersst_v5.METHOD_DISP_NAME(ersst_v5.METHOD_NAME==method_name),'MarkerSize',marker_size);
         end
     end
     set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XLimitMethod','tight');
     xlim(t_axes,[1,24])
-    legend(t_axes,'boxoff');
+    legend(t_axes,'boxoff','Location','best','NumColumns',2);
     xlabel(t_axes,"Months","FontSize",10)
-    ylabel(t_axes,"Annual Cycle (℃)","FontSize",10)
-    title(sprintf("\\bf Annual Cycle. \\rm (%s minus %s: %.2e @ {\\it t} = %d, %.2e @ {\\it t} = %d)", ...
-        M_1_DISP_NAME,M_REF_DISP_NAME, ...
+    ylabel(t_axes,"(℃)","FontSize",10)
+    title(sprintf("\\bf %sAnnual Cycle. \\rm (%s minus %s:  %.2e, {\\it t} = %d; %.2e, {\\it t} = %d.  aEV: %.2f, %.2f)", ...
+        star_str,M_1_DISP_NAME,M_REF_DISP_NAME, ...
         output_diff.(output_diff_field_name).maxk(1),output_diff.(output_diff_field_name).maxk_ind(1), ...
-        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1)), ...
+        output_diff.(output_diff_field_name).mink(1),output_diff.(output_diff_field_name).mink_ind(1), ...
+        output.(m_1_name).season_aEV,output.(m_ref_name).season_aEV), ...
         "FontSize",10,'FontName','Times New Roman');
     %
     title(t_TCL,title_str,"FontSize",10,'FontName','Times New Roman')
@@ -667,7 +715,7 @@ end
 
 %% 
 
-function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,create_fig_EN,export_fig_EN)
+function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,star_component_name,create_fig_EN,export_fig_EN)
 %ersst_single_station_graph - Draw, iterating through all "method pairs" in the struct. 
 %
 % Syntax: 
@@ -676,6 +724,7 @@ function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,create_
     arguments
         ersst_v5
         diff_struct
+        star_component_name = "residual";
         create_fig_EN = true;
         export_fig_EN = false;
     end
@@ -691,7 +740,7 @@ function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,create_
         [lat_str,lon_str] = lat_lon2str(lat_ss(1),lon_ss(1));
         title_str = sprintf("\\bf ERSST v5 (1902-2021) %s %s",lat_str,lon_str);
         file_name = sprintf("ersst_v5\\%s",fig_name);
-        [output_diff{i}] = ersst_single_station(ersst_v5,lon_ss(1),lat_ss(1),m_1_name,m_ref_name,method_disp_set,fig_name,title_str,file_name,create_fig_EN,export_fig_EN);
+        [output_diff{i}] = ersst_single_station(ersst_v5,lon_ss(1),lat_ss(1),m_1_name,m_ref_name,method_disp_set,star_component_name,fig_name,title_str,file_name,create_fig_EN,export_fig_EN);
     end
 
     return;

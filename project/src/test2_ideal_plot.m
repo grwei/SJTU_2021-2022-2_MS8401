@@ -48,7 +48,7 @@ t_axes = nexttile(t_TCL,1);
 plot(t_axes,t,x.raw,'-',"DisplayName",'raw data');
 hold on
 plot(t_axes,t,x.trend,'-',"DisplayName",'ideal trend');
-set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{},'XLimitMethod','tight');
+set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XTickLabel',{},'XLimitMethod','tight');
 xticks(t_axes,ticks_x);
 xticklabels(t_axes,{})
 ylabel(t_axes,"Ideal Series (℃)","FontSize",10)
@@ -58,30 +58,34 @@ ylabel(t_axes,"Ideal Series (℃)","FontSize",10)
 t_axes = nexttile(t_TCL,2);
 % plot(t_axes,t,x.raw-x.season,'-',"DisplayName",'ideal deseason');
 hold on
+m_cnt = 0;
 for i = 1:length(method_name_set)
     method_name = method_name_set(i);
     if ismember(method_name,method_disp_set)
-        plot(t_axes,t,output.(method_name).trend,line_spec_set(i),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
+        m_cnt = m_cnt + 1;
+        plot(t_axes,t,output.(method_name).trend,line_spec_set(m_cnt),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
     end
 end
-set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XTickLabel',{},'XLimitMethod','tight');
+set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XTickLabel',{},'XLimitMethod','tight');
 legend(t_axes,'box','off','Orientation','vertical','NumColumns',4,'Location','best');
 xticks(t_axes,ticks_x);
 xticklabels(t_axes,{})
 ylabel(t_axes,"Trend (℃)","FontSize",10)
 
-% 3. extracted residue (several)
+% 3. extracted residual (several)
 
 t_axes = nexttile(t_TCL,3);
-% plot(t_axes,t,x.residue,'-',"DisplayName",'ideal deseason');
+% plot(t_axes,t,x.residual,'-',"DisplayName",'ideal deseason');
 hold on
+m_cnt = 0;
 for i = 1:length(method_name_set)
     method_name = method_name_set(i);
     if ismember(method_name,method_disp_set)
-        plot(t_axes,t,output.(method_name).residue,line_spec_set(i),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
+        m_cnt = m_cnt + 1;
+        plot(t_axes,t,output.(method_name).residual,line_spec_set(m_cnt),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
     end
 end
-set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');
+set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XLimitMethod','tight');
 % legend(t_axes,'boxoff');
 xticks(t_axes,ticks_x);
 xticklabels(t_axes,label_x)
@@ -93,13 +97,15 @@ ylabel(t_axes,"Residual (℃)","FontSize",10)
 t_axes = nexttile(t_TCL,4);
 % plot(t_axes,t,x.raw-x.trend,'-',"DisplayName",'ideal detrended');
 hold on
+m_cnt = 0;
 for i = 1:length(method_name_set)
     method_name = method_name_set(i);
     if ismember(method_name,method_disp_set)
-        plot(t_axes,t,output.(method_name).season,line_spec_set(i),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
+        m_cnt = m_cnt + 1;
+        plot(t_axes,t,output.(method_name).season,line_spec_set(m_cnt),"DisplayName",METHOD_DISP_NAME(METHOD_NAME==method_name),'MarkerSize',marker_size);
     end
 end
-set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','out','XLimitMethod','tight');
+set(t_axes,"YDir",'normal',"TickLabelInterpreter",'tex',"FontSize",10,'FontName','Times New Roman','Box','off','TickDir','in','XLimitMethod','tight');
 xlim(t_axes,[1,24])
 % legend(t_axes,'boxoff');
 xlabel(t_axes,"Months","FontSize",10)
