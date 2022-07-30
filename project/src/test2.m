@@ -31,6 +31,8 @@ INDICES_VAR_TYPES = repmat("double",size(METHOD_DISP_NAME));
 bin_folder_name = "ideal";
 
 t = (1:122*12).';                       % [months] 1900-2021
+ideal_summary.start_month = "190001";
+ideal_summary.end_month = "202112";
 span = [15*12,15*12-1];                 % [months]
 lwlr_annual = 1;
 h = 2;

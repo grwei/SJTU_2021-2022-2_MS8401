@@ -74,10 +74,18 @@ for k = 1:length(season_diff.method_name)
     residual_diff.(field_name).min = season_diff.(field_name).max;
     for i = 1:length(lon)
         for j = 1:length(lat)
-            season_diff.(field_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            season_diff.(field_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            residual_diff.(field_name).max(i,j) = max(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
-            residual_diff.(field_name).min(i,j) = min(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
+            % season
+            season_error = ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j};
+            season_diff.(field_name).max(i,j) = max(season_error,[],"omitnan");
+            season_diff.(field_name).min(i,j) = min(season_error,[],"omitnan");
+            season_diff.(field_name).RMSE(i,j) = sqrt(mean(season_error.^2,"omitnan"));
+            season_diff.(field_name).MAE(i,j) = mean(abs(season_error),"omitnan");
+            % residual
+            residual_error = ideal_summary.(method_name).residual{i,j} - ideal_summary.(ref_method_name).residual{i,j};
+            residual_diff.(field_name).max(i,j) = max(residual_error,[],"omitnan");
+            residual_diff.(field_name).min(i,j) = min(residual_error,[],"omitnan");
+            residual_diff.(field_name).RMSE(i,j) = sqrt(mean(residual_error.^2,"omitnan"));
+            residual_diff.(field_name).MAE(i,j) = mean(abs(residual_error),"omitnan");
         end
     end
     [season_diff.(field_name).max_diff_value,season_diff.(field_name).max_diff_linear_ind] = maxk(max(season_diff.(field_name).max(:),season_diff.(field_name).min(:), ...
@@ -118,10 +126,18 @@ for k = 1:length(season_diff_ad.method_name)
     residual_diff_ad.(field_name).min = season_diff_ad.(field_name).max;
     for i = 1:length(lon)
         for j = 1:length(lat)
-            season_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            season_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j},[],"omitnan");
-            residual_diff_ad.(field_name).max(i,j) = max(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
-            residual_diff_ad.(field_name).min(i,j) = min(ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j},[],"omitnan");
+            % season
+            season_error = ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j};
+            season_diff_ad.(field_name).max(i,j) = max(season_error,[],"omitnan");
+            season_diff_ad.(field_name).min(i,j) = min(season_error,[],"omitnan");
+            season_diff_ad.(field_name).RMSE(i,j) = sqrt(mean(season_error.^2,"omitnan"));
+            season_diff_ad.(field_name).MAE(i,j) = mean(abs(season_error),"omitnan");
+            % residual
+            residual_error = ideal_summary.(method_name).residual{i,j} - ideal_summary.(ref_method_name).residual{i,j};
+            residual_diff_ad.(field_name).max(i,j) = max(residual_error,[],"omitnan");
+            residual_diff_ad.(field_name).min(i,j) = min(residual_error,[],"omitnan");
+            residual_diff_ad.(field_name).RMSE(i,j) = sqrt(mean(residual_error.^2,"omitnan"));
+            residual_diff_ad.(field_name).MAE(i,j) = mean(abs(residual_error),"omitnan");
         end
     end
     %%% find max. diff. index
@@ -199,10 +215,10 @@ end
 for i = 1:length(season_diff.method_name)
     method_name = season_diff.method_name(i);
     ref_method_name = season_diff.ref_method_name(i);
-    field_name = season_diff.field_name(i);
     if method_name == ref_method_name
         continue;
     end
+    field_name = season_diff.field_name(i);
     % seasonality difference from method * to reference method
     data1 = season_diff.(field_name).max;
     data2 = season_diff.(field_name).min;
@@ -673,7 +689,7 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
         output.(m_1_name).residual_aEV,output.(m_ref_name).residual_aEV), ...
         "FontSize",10,'FontName','Times New Roman');
 
-    % 4. extracted annual cycle (seasonal component) (several)
+    % 4. extracted annual cycle (seasonal component) (selected)
 
     output_diff_field_name = M_FIELD_NAME+"_season";
     if strcmpi(star_component_name,"season")
