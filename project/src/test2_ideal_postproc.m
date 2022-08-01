@@ -38,6 +38,7 @@ n_max = 10; % find n_max largest elements
 season_diff.case_num = case_num;
 season_diff.field_name = season_diff.method_name + "_" + season_diff.ref_method_name;
 residual_diff = season_diff;
+trend_diff = season_diff;
 for k = 1:length(season_diff.method_name)
     method_name = season_diff.method_name(k);
     ref_method_name = season_diff.ref_method_name(k);
@@ -45,8 +46,12 @@ for k = 1:length(season_diff.method_name)
     % pre-allocate memory
     season_diff.(field_name).max = nan(length(season_diff.case_num),1);
     season_diff.(field_name).min = season_diff.(field_name).max;
-    residual_diff.(field_name).max = season_diff.(field_name).max;
-    residual_diff.(field_name).min = season_diff.(field_name).max;
+    season_diff.(field_name).MaxAbs = season_diff.(field_name).max;
+    season_diff.(field_name).RMSE = season_diff.(field_name).max;
+    season_diff.(field_name).MAE = season_diff.(field_name).max;
+    season_diff.(field_name).ME = season_diff.(field_name).max;
+    residual_diff.(field_name) = season_diff.(field_name);
+    trend_diff.(field_name) = season_diff.(field_name);
     for i = 1:length(residual_diff.case_num)
         % season
         season_error = ideal_summary.(method_name).season{i,1} - ideal_summary.(ref_method_name).season{i,1};
@@ -64,6 +69,14 @@ for k = 1:length(season_diff.method_name)
         residual_diff.(field_name).RMSE(i,1) = sqrt(mean(residual_error.^2,"omitnan"));
         residual_diff.(field_name).MAE(i,1) = mean(abs(residual_error),"omitnan");
         residual_diff.(field_name).ME(i,1) = mean(residual_error,"omitnan");
+        % trend
+        trend_error = ideal_summary.(method_name).trend{i,1} - ideal_summary.(ref_method_name).trend{i,1};
+        trend_diff.(field_name).max(i,1) = max(trend_error,[],"omitnan");
+        trend_diff.(field_name).min(i,1) = min(trend_error,[],"omitnan");
+        trend_diff.(field_name).MaxAbs(i,1) = max(abs(trend_error),[],"omitnan");
+        trend_diff.(field_name).RMSE(i,1) = sqrt(mean(trend_error.^2,"omitnan"));
+        trend_diff.(field_name).MAE(i,1) = mean(abs(trend_error),"omitnan");
+        trend_diff.(field_name).ME(i,1) = mean(trend_error,"omitnan");
     end
     [season_diff.(field_name).max_diff_value,season_diff.(field_name).max_diff_linear_ind] = maxk(max(season_diff.(field_name).max(:),season_diff.(field_name).min(:), ...
         "omitnan","ComparisonMethod","abs"), ...
@@ -73,6 +86,10 @@ for k = 1:length(season_diff.method_name)
         "omitnan","ComparisonMethod","abs"), ...
         n_max,"ComparisonMethod","abs");
     [residual_diff.(field_name).max_diff_case_num,residual_diff.(field_name).ShouldBeOnes] = ind2sub(size(residual_diff.(field_name).max),residual_diff.(field_name).max_diff_linear_ind);
+    [trend_diff.(field_name).max_diff_value,trend_diff.(field_name).max_diff_linear_ind] = maxk(max(trend_diff.(field_name).max(:),trend_diff.(field_name).min(:), ...
+        "omitnan","ComparisonMethod","abs"), ...
+        n_max,"ComparisonMethod","abs");
+    [trend_diff.(field_name).max_diff_case_num,trend_diff.(field_name).ShouldBeOnes] = ind2sub(size(trend_diff.(field_name).max),trend_diff.(field_name).max_diff_linear_ind);
 end
 
 %% Create graph.
@@ -85,10 +102,11 @@ end
 
 [output_diff_residual] = ideal_single_case_graph(ideal_summary,residual_diff,"residual",create_fig_EN,export_fig_EN);
 [output_diff_season] = ideal_single_case_graph(ideal_summary,season_diff,"season",create_fig_EN,export_fig_EN);
+[output_diff_trend] = ideal_single_case_graph(ideal_summary,season_diff,"trend",create_fig_EN,export_fig_EN);
 
 %%
 
-ideal_single_case(ideal_summary,8,"M2A","M2",["M2A","M2"],"none");
+ideal_single_case(ideal_summary,8,"M1A","M2A",["M1A","M2A"],"none");
 
 %% Create text: Diff. between method: aunnal cycle, residual
 
@@ -96,14 +114,18 @@ date_str = datetime('now','TimeZone','local','Format','yyyyMMdd_HHmm');
 file_name = sprintf("..\\doc\\fig\\test2\\ideal_methods_compare_%s.txt",date_str);
 fileID = fopen(file_name,'a');
 fprintf(fileID,"Create time: %s\n",date_str);
-%
+% season
 descrip_str = "Difference between extracted seasonal component (annual cycle).";
 component_disp_name = "season";
 ideal_diff_txt_gen(season_diff,fileID,descrip_str,component_disp_name,METHOD_NAME,METHOD_DISP_NAME);
-%
+% residual
 descrip_str = "Difference between extracted residual component.";
 component_disp_name = "residual";
 ideal_diff_txt_gen(residual_diff,fileID,descrip_str,component_disp_name,METHOD_NAME,METHOD_DISP_NAME);
+% trend
+descrip_str = "Difference between extracted trend component.";
+component_disp_name = "trend";
+ideal_diff_txt_gen(trend_diff,fileID,descrip_str,component_disp_name,METHOD_NAME,METHOD_DISP_NAME);
 %
 fclose(fileID);
 
@@ -374,7 +396,7 @@ function [output_diff] = ideal_single_case_graph(ideal_summary,diff_struct,star_
 %
 % Syntax: 
 %
-% Will call function `ersst_single_station`.
+% Will call function ideal_single_case.
     arguments
         ideal_summary
         diff_struct
@@ -392,7 +414,7 @@ function [output_diff] = ideal_single_case_graph(ideal_summary,diff_struct,star_
         case_selected = case_ss(1);
         %
         ad_cnt = 0;
-        fig_name = sprintf("ideal_C%u_%s_%s",case_selected,m_1_name,m_ref_name);
+        fig_name = sprintf("ideal_C%u_%s_%s_%s",case_selected,m_1_name,m_ref_name,star_component_name);
         title_str = sprintf("\\bf Ideal Case %u",case_selected);
         file_name = sprintf("ideal\\%s",fig_name);
         [output_diff{i+ad_cnt}] = ideal_single_case(ideal_summary,case_selected,m_1_name,m_ref_name,method_disp_set,star_component_name,fig_name,title_str,file_name,create_fig_EN,export_fig_EN);
@@ -400,7 +422,7 @@ function [output_diff] = ideal_single_case_graph(ideal_summary,diff_struct,star_
         if case_selected == 8
             ad_cnt = ad_cnt + 1;
             case_selected = case_ss(2);
-            fig_name = sprintf("ideal_C%u_%s_%s",case_selected,m_1_name,m_ref_name);
+            fig_name = sprintf("ideal_C%u_%s_%s_%s",case_selected,m_1_name,m_ref_name,star_component_name);
             title_str = sprintf("\\bf Ideal Case %u",case_selected);
             file_name = sprintf("ideal\\%s",fig_name);
             [output_diff{i+ad_cnt}] = ideal_single_case(ideal_summary,case_selected,m_1_name,m_ref_name,method_disp_set,star_component_name,fig_name,title_str,file_name,create_fig_EN,export_fig_EN);

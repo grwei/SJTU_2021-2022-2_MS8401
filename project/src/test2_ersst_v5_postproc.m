@@ -29,40 +29,43 @@ lat = ersst_v5.lat;
 
 %% mean of annual cycle and residual
 
+n_max = 10; % find n_max largest elements
 season_mean.method_name = METHOD_NAME;
-residual_mean.method_name = METHOD_NAME;
 season_mean.lon = lon;
 season_mean.lat = lat;
-residual_mean.lon = lon;
-residual_mean.lat = lat;
+residual_mean = season_mean;
 for k = 1:length(season_mean.method_name)
     method_name = season_mean.method_name(k);
     %
-    season_mean.(method_name) = nan(length(lon),length(lat));
-    residual_mean.(method_name) = nan(length(lon),length(lat));
+    season_mean.(method_name).data = nan(length(lon),length(lat));
+    residual_mean.(method_name) = season_mean.(method_name);
     for i = 1:length(lon)
         for j = 1:length(lat)
-            season_mean.(method_name)(i,j) = mean(ersst_v5.(method_name).season{i,j},"omitnan");
-            residual_mean.(method_name)(i,j) = mean(ersst_v5.(method_name).residual{i,j},"omitnan");
+            season_mean.(method_name).data(i,j) = mean(ersst_v5.(method_name).season{i,j},"omitnan");
+            residual_mean.(method_name).data(i,j) = mean(ersst_v5.(method_name).residual{i,j},"omitnan");
         end
     end
+    [season_mean.(method_name).MaxAbs,season_mean.(method_name).MaxAbs_linear_ind] = maxk(season_mean.(method_name).data(:), ...
+        n_max,"ComparisonMethod","abs");
+    [season_mean.(method_name).MaxAbs_lon_ind,season_mean.(method_name).MaxAbs_lat_ind] = ind2sub(size(season_mean.(method_name).data),season_mean.(method_name).MaxAbs_linear_ind);
+    [residual_mean.(method_name).MaxAbs,residual_mean.(method_name).MaxAbs_linear_ind] = maxk(residual_mean.(method_name).data(:), ...
+        n_max,"ComparisonMethod","abs");
+    [residual_mean.(method_name).MaxAbs_lon_ind,residual_mean.(method_name).MaxAbs_lat_ind] = ind2sub(size(residual_mean.(method_name).data),residual_mean.(method_name).MaxAbs_linear_ind);
 end
 
 %% Max. Diff.
 
-ref_method_name = repmat("M2",[1,length(METHOD_NAME)]);
+season_diff.method_name = [METHOD_NAME, ...
+                           "M1B","M1A","M1B","M1A","M1B","M2S","Ssa"];
+season_diff.ref_method_name = [repmat("M2",[1,length(METHOD_NAME)]), ...
+                               "M1A","M2S","M2S","M2A","M2A","M2A","Ssm"];
 n_max = 10; % find n_max largest elements
 %
 season_diff.lon = lon;
 season_diff.lat = lat;
-residual_diff.lon = lon;
-residual_diff.lat = lat;
-season_diff.ref_method_name = ref_method_name;
-residual_diff.ref_method_name = ref_method_name;
-season_diff.method_name = METHOD_NAME;
-residual_diff.method_name = METHOD_NAME;
-season_diff.field_name = METHOD_NAME + "_" + ref_method_name;
-residual_diff.field_name = METHOD_NAME + "_" + ref_method_name;
+season_diff.field_name = season_diff.method_name + "_" + season_diff.ref_method_name;
+residual_diff = season_diff;
+residual_mean_diff = season_diff;
 for k = 1:length(season_diff.method_name)
     method_name = season_diff.method_name(k);
     ref_method_name = season_diff.ref_method_name(k);
@@ -70,8 +73,11 @@ for k = 1:length(season_diff.method_name)
     %
     season_diff.(field_name).max = nan(length(lon),length(lat));
     season_diff.(field_name).min = season_diff.(field_name).max;
-    residual_diff.(field_name).max = season_diff.(field_name).max;
-    residual_diff.(field_name).min = season_diff.(field_name).max;
+    season_diff.(field_name).RMSE = season_diff.(field_name).max;
+    season_diff.(field_name).MAE = season_diff.(field_name).max;
+    season_diff.(field_name).ME = season_diff.(field_name).max;
+    residual_diff.(field_name) = season_diff.(field_name);
+    residual_mean_diff.(field_name) = season_diff.(field_name);
     for i = 1:length(lon)
         for j = 1:length(lat)
             % season
@@ -80,12 +86,21 @@ for k = 1:length(season_diff.method_name)
             season_diff.(field_name).min(i,j) = min(season_error,[],"omitnan");
             season_diff.(field_name).RMSE(i,j) = sqrt(mean(season_error.^2,"omitnan"));
             season_diff.(field_name).MAE(i,j) = mean(abs(season_error),"omitnan");
+            season_diff.(field_name).ME(i,j) = mean(season_error,"omitnan");
             % residual
-            residual_error = ideal_summary.(method_name).residual{i,j} - ideal_summary.(ref_method_name).residual{i,j};
+            residual_error = ersst_v5.(method_name).residual{i,j} - ersst_v5.(ref_method_name).residual{i,j};
             residual_diff.(field_name).max(i,j) = max(residual_error,[],"omitnan");
             residual_diff.(field_name).min(i,j) = min(residual_error,[],"omitnan");
             residual_diff.(field_name).RMSE(i,j) = sqrt(mean(residual_error.^2,"omitnan"));
             residual_diff.(field_name).MAE(i,j) = mean(abs(residual_error),"omitnan");
+            residual_diff.(field_name).ME(i,j) = mean(residual_error,"omitnan");
+            % residual_mean
+            residual_mean_error = mean(residual_error,"omitnan");
+            residual_mean_diff.(field_name).max(i,j) = max(residual_mean_error,[],"omitnan");
+            residual_mean_diff.(field_name).min(i,j) = min(residual_mean_error,[],"omitnan");
+            residual_mean_diff.(field_name).RMSE(i,j) = sqrt(mean(residual_mean_error.^2,"omitnan"));
+            residual_mean_diff.(field_name).MAE(i,j) = mean(abs(residual_mean_error),"omitnan");
+            residual_mean_diff.(field_name).ME(i,j) = mean(residual_mean_error,"omitnan");
         end
     end
     [season_diff.(field_name).max_diff_value,season_diff.(field_name).max_diff_linear_ind] = maxk(max(season_diff.(field_name).max(:),season_diff.(field_name).min(:), ...
@@ -96,59 +111,10 @@ for k = 1:length(season_diff.method_name)
         "omitnan","ComparisonMethod","abs"), ...
         n_max,"ComparisonMethod","abs");
     [residual_diff.(field_name).max_diff_lon_ind,residual_diff.(field_name).max_diff_lat_ind] = ind2sub(size(residual_diff.(field_name).max),residual_diff.(field_name).max_diff_linear_ind);
-end
-
-%% additional
-
-method_name = ["M1B","M1A","M1B","M1A","M1B","M2S","Ssa"];
-ref_method_name = ["M1A","M2S","M2S","M2A","M2A","M2A","Ssm"];
-n_max = 10; % find n_max largest elements
-%
-season_diff_ad.lon = lon;
-season_diff_ad.lat = lat;
-residual_diff_ad.lon = lon;
-residual_diff_ad.lat = lat;
-season_diff_ad.method_name = method_name;
-season_diff_ad.ref_method_name = ref_method_name;
-season_diff_ad.field_name = method_name + "_" + ref_method_name;
-residual_diff_ad.method_name = method_name;
-residual_diff_ad.ref_method_name = ref_method_name;
-residual_diff_ad.field_name = method_name + "_" + ref_method_name;
-%
-for k = 1:length(season_diff_ad.method_name)
-    method_name = season_diff_ad.method_name(k);
-    ref_method_name = season_diff_ad.ref_method_name(k);
-    field_name = method_name + "_" + ref_method_name;
-    %
-    season_diff_ad.(field_name).max = nan(length(lon),length(lat));
-    season_diff_ad.(field_name).min = season_diff_ad.(field_name).max;
-    residual_diff_ad.(field_name).max = season_diff_ad.(field_name).max;
-    residual_diff_ad.(field_name).min = season_diff_ad.(field_name).max;
-    for i = 1:length(lon)
-        for j = 1:length(lat)
-            % season
-            season_error = ersst_v5.(method_name).season{i,j} - ersst_v5.(ref_method_name).season{i,j};
-            season_diff_ad.(field_name).max(i,j) = max(season_error,[],"omitnan");
-            season_diff_ad.(field_name).min(i,j) = min(season_error,[],"omitnan");
-            season_diff_ad.(field_name).RMSE(i,j) = sqrt(mean(season_error.^2,"omitnan"));
-            season_diff_ad.(field_name).MAE(i,j) = mean(abs(season_error),"omitnan");
-            % residual
-            residual_error = ideal_summary.(method_name).residual{i,j} - ideal_summary.(ref_method_name).residual{i,j};
-            residual_diff_ad.(field_name).max(i,j) = max(residual_error,[],"omitnan");
-            residual_diff_ad.(field_name).min(i,j) = min(residual_error,[],"omitnan");
-            residual_diff_ad.(field_name).RMSE(i,j) = sqrt(mean(residual_error.^2,"omitnan"));
-            residual_diff_ad.(field_name).MAE(i,j) = mean(abs(residual_error),"omitnan");
-        end
-    end
-    %%% find max. diff. index
-    [season_diff_ad.(field_name).max_diff_value,season_diff_ad.(field_name).max_diff_linear_ind] = maxk(max(season_diff_ad.(field_name).max(:),season_diff_ad.(field_name).min(:), ...
+    [residual_mean_diff.(field_name).max_diff_value,residual_mean_diff.(field_name).max_diff_linear_ind] = maxk(max(residual_mean_diff.(field_name).max(:),residual_mean_diff.(field_name).min(:), ...
         "omitnan","ComparisonMethod","abs"), ...
         n_max,"ComparisonMethod","abs");
-    [season_diff_ad.(field_name).max_diff_lon_ind,season_diff_ad.(field_name).max_diff_lat_ind] = ind2sub(size(season_diff_ad.(field_name).max),season_diff_ad.(field_name).max_diff_linear_ind);
-    [residual_diff_ad.(field_name).max_diff_value,residual_diff_ad.(field_name).max_diff_linear_ind] = maxk(max(residual_diff_ad.(field_name).max(:),residual_diff_ad.(field_name).min(:), ...
-        "omitnan","ComparisonMethod","abs"), ...
-        n_max,"ComparisonMethod","abs");
-    [residual_diff_ad.(field_name).max_diff_lon_ind,residual_diff_ad.(field_name).max_diff_lat_ind] = ind2sub(size(residual_diff_ad.(field_name).max),residual_diff_ad.(field_name).max_diff_linear_ind);
+    [residual_mean_diff.(field_name).max_diff_lon_ind,residual_mean_diff.(field_name).max_diff_lat_ind] = ind2sub(size(residual_mean_diff.(field_name).max),residual_mean_diff.(field_name).max_diff_linear_ind);
 end
 
 %% Create graph.
@@ -160,16 +126,16 @@ end
 %% Create figure: single station
 
 [output_diff_residual] = ersst_single_station_graph(ersst_v5,residual_diff,"residual",create_fig_EN,export_fig_EN);
-[output_diff_residual_ad] = ersst_single_station_graph(ersst_v5,residual_diff_ad,"residual",create_fig_EN,export_fig_EN);
-[output_diff_season_ad] = ersst_single_station_graph(ersst_v5,season_diff_ad,"season",create_fig_EN,export_fig_EN);
+[output_diff_season] = ersst_single_station_graph(ersst_v5,season_diff,"season",create_fig_EN,export_fig_EN);
+[output_diff_residual_mean] = ersst_single_station_graph(ersst_v5,residual_mean_diff,"residual_mean",create_fig_EN,export_fig_EN);
 
 %% Create figure: mean of annual cycle (season) and residual
 
 for method_name = season_mean.method_name
     lon = season_mean.lon;
     lat = season_mean.lat;
-    data1 = season_mean.(method_name);
-    data2 = residual_mean.(method_name);
+    data1 = season_mean.(method_name).data;
+    data2 = residual_mean.(method_name).data;
     title1 = sprintf("\\bf %s: Mean of annual cycle (seasonal component) and residual",METHOD_DISP_NAME(METHOD_NAME == method_name));
     title2 = title1;
     unit_name1 = "Mean of seasonal component (°C)";
@@ -242,38 +208,6 @@ for i = 1:length(season_diff.method_name)
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 end
 
-%% additional
-
-for i = 1:length(season_diff_ad.method_name)
-    method_name = season_diff_ad.method_name(i);
-    ref_method_name = season_diff_ad.ref_method_name(i);
-    field_name = season_diff_ad.field_name(i);
-    if method_name == ref_method_name
-        continue;
-    end
-    % seasonality difference from method * to reference method
-    data1 = season_diff_ad.(field_name).max;
-    data2 = season_diff_ad.(field_name).min;
-    title1 = sprintf("\\bf Annual cycle: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
-    title2 = title1;
-    unit_name1 = "Max. (°C)";
-    unit_name2 = "Min. (°C)";
-    filename = sprintf("ersst_v5\\ersst_v5_%s_minus_%s_season",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
-%     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
-    m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
-
-    % residual difference from method * to reference method
-    data1 = residual_diff_ad.(field_name).max;
-    data2 = residual_diff_ad.(field_name).min;
-    title1 = sprintf("\\bf Residual: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
-    title2 = title1;
-    unit_name1 = "Max. (°C)";
-    unit_name2 = "Min. (°C)";
-    filename = sprintf("ersst_v5\\ersst_v5_%s_minus_%s_residual",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
-%     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
-    m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
-end
-
 %% local functions
 
 %% Initialize environment
@@ -293,7 +227,6 @@ function [] = init_env()
     mfile_fullpath_without_fname = mfile_fullpath(1:end-strlength(mfilename));
     addpath(genpath(mfile_fullpath_without_fname + "../data"), ...
             genpath(mfile_fullpath_without_fname + "../inc")); % adds the specified folders to the top of the search path for the current MATLAB® session.
-
     return;
 end
 
@@ -609,6 +542,7 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     line_spec_order = ["-","-",":","--","-.","x","+"];
     
     % 1. raw & extracted trend (selected)
+
     t_axes = nexttile(t_TCL,1);
     hold on
     m_cnt = 0;
@@ -629,10 +563,9 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     % 2. extracted trend (selected)
     
     output_diff_field_name = M_FIELD_NAME+"_trend";
+    star_str = "";
     if strcmpi(star_component_name,"Trend")
         star_str = "*";
-    else
-        star_str = "";
     end
     t_axes = nexttile(t_TCL,2);
     % plot(t_axes,t,x.raw-x.season,'-',"DisplayName",'ideal deseason');
@@ -660,10 +593,11 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     % 3. extracted residual (selected)
 
     output_diff_field_name = M_FIELD_NAME+"_residual";
+    star_str = "";
     if strcmpi(star_component_name,"residual")
         star_str = "*";
-    else
-        star_str = "";
+    elseif strcmpi(star_component_name,"residual_mean")
+        star_str = "\spadesuit";
     end
     t_axes = nexttile(t_TCL,3);
     % plot(t_axes,t,x.residual,'-',"DisplayName",'ideal deseason');
@@ -692,6 +626,7 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     % 4. extracted annual cycle (seasonal component) (selected)
 
     output_diff_field_name = M_FIELD_NAME+"_season";
+    star_str = "";
     if strcmpi(star_component_name,"season")
         star_str = "*";
     else
@@ -752,7 +687,7 @@ function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,star_co
         method_disp_set = [m_1_name,m_ref_name];
         lon_ss = diff_struct.lon(diff_struct.(field_name).max_diff_lon_ind);
         lat_ss = diff_struct.lat(diff_struct.(field_name).max_diff_lat_ind);
-        fig_name = sprintf("ersst_v5_%gN_%gE_%s_%s",lat_ss(1),lon_ss(1),m_1_name,m_ref_name);
+        fig_name = sprintf("ersst_v5_%gN_%gE_%s_%s_%s",lat_ss(1),lon_ss(1),m_1_name,m_ref_name,star_component_name);
         [lat_str,lon_str] = lat_lon2str(lat_ss(1),lon_ss(1));
         title_str = sprintf("\\bf ERSST v5 (1902-2021) %s %s",lat_str,lon_str);
         file_name = sprintf("ersst_v5\\%s",fig_name);
@@ -762,7 +697,7 @@ function [output_diff] = ersst_single_station_graph(ersst_v5,diff_struct,star_co
     return;
 end
 
-%% lat (deg N), lon (deg E) -> lat str (xx °N/S), lon str (xx °E/W)
+%% lat (°N), lon (°E) -> lat str (xx °N/S), lon str (xx °E/W)
 function [lat_str,lon_str] = lat_lon2str(lat,lon)
 %lat_lon2str - Description
 %
