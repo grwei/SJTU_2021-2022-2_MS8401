@@ -13,9 +13,7 @@
 
 ### Project
 
-- [pre-experiment](https://grwei.github.io/SJTU_2021-2022-2_MS8401/project/report.pdf)
-  - [`test0.m`](https://github.com/grwei/SJTU_2021-2022-2_MS8401/tree/main/project/src/test0.m)
-- [Course project](https://grwei.github.io/SJTU_2021-2022-2_MS8401/project/课程项目_危国锐.pdf)
+- [Report](https://grwei.github.io/SJTU_2021-2022-2_MS8401/project/课程项目_危国锐_small.pdf)
 
 ## Resources
 

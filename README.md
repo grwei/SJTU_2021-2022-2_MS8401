@@ -11,12 +11,11 @@
 
 - [Homework 1](hw/hw1_危国锐_120034910021.pdf)
 - [Homework 2](hw/hw2_危国锐_120034910021.pdf)
+- [Homework 3](hw/hw3_危国锐_120034910021.pdf)
 
 ### Project
 
-- [`report.pdf`](project/doc/report.pdf)
-  - [`test0.m`](project/src/test0.m)
-- [Course project](project/doc/课程项目_危国锐_small.pdf)
+- [Report](project/doc/课程项目_危国锐_small.pdf)
 
 ## Resources
 

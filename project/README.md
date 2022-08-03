@@ -7,7 +7,7 @@
 
 ## Contents
 
-- [Course project](doc/课程项目_危国锐_small.pdf)
+- [Report](doc/课程项目_危国锐_small.pdf)
 
 ### Question
 
