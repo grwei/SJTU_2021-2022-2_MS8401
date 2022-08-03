@@ -65,6 +65,7 @@ season_diff.lon = lon;
 season_diff.lat = lat;
 season_diff.field_name = season_diff.method_name + "_" + season_diff.ref_method_name;
 residual_diff = season_diff;
+trend_diff = season_diff;
 residual_mean_diff = season_diff;
 for k = 1:length(season_diff.method_name)
     method_name = season_diff.method_name(k);
@@ -77,6 +78,7 @@ for k = 1:length(season_diff.method_name)
     season_diff.(field_name).MAE = season_diff.(field_name).max;
     season_diff.(field_name).ME = season_diff.(field_name).max;
     residual_diff.(field_name) = season_diff.(field_name);
+    trend_diff.(field_name) = season_diff.(field_name);
     residual_mean_diff.(field_name) = season_diff.(field_name);
     for i = 1:length(lon)
         for j = 1:length(lat)
@@ -94,6 +96,13 @@ for k = 1:length(season_diff.method_name)
             residual_diff.(field_name).RMSE(i,j) = sqrt(mean(residual_error.^2,"omitnan"));
             residual_diff.(field_name).MAE(i,j) = mean(abs(residual_error),"omitnan");
             residual_diff.(field_name).ME(i,j) = mean(residual_error,"omitnan");
+            % trend
+            trend_error = ersst_v5.(method_name).trend{i,j} - ersst_v5.(ref_method_name).trend{i,j};
+            trend_diff.(field_name).max(i,j) = max(trend_error,[],"omitnan");
+            trend_diff.(field_name).min(i,j) = min(trend_error,[],"omitnan");
+            trend_diff.(field_name).RMSE(i,j) = sqrt(mean(trend_error.^2,"omitnan"));
+            trend_diff.(field_name).MAE(i,j) = mean(abs(trend_error),"omitnan");
+            trend_diff.(field_name).ME(i,j) = mean(trend_error,"omitnan");
             % residual_mean
             residual_mean_error = mean(residual_error,"omitnan");
             residual_mean_diff.(field_name).max(i,j) = max(residual_mean_error,[],"omitnan");
@@ -111,6 +120,10 @@ for k = 1:length(season_diff.method_name)
         "omitnan","ComparisonMethod","abs"), ...
         n_max,"ComparisonMethod","abs");
     [residual_diff.(field_name).max_diff_lon_ind,residual_diff.(field_name).max_diff_lat_ind] = ind2sub(size(residual_diff.(field_name).max),residual_diff.(field_name).max_diff_linear_ind);
+    [trend_diff.(field_name).max_diff_value,trend_diff.(field_name).max_diff_linear_ind] = maxk(max(trend_diff.(field_name).max(:),trend_diff.(field_name).min(:), ...
+        "omitnan","ComparisonMethod","abs"), ...
+        n_max,"ComparisonMethod","abs");
+    [trend_diff.(field_name).max_diff_lon_ind,trend_diff.(field_name).max_diff_lat_ind] = ind2sub(size(trend_diff.(field_name).max),trend_diff.(field_name).max_diff_linear_ind);
     [residual_mean_diff.(field_name).max_diff_value,residual_mean_diff.(field_name).max_diff_linear_ind] = maxk(max(residual_mean_diff.(field_name).max(:),residual_mean_diff.(field_name).min(:), ...
         "omitnan","ComparisonMethod","abs"), ...
         n_max,"ComparisonMethod","abs");
@@ -127,7 +140,94 @@ end
 
 [output_diff_residual] = ersst_single_station_graph(ersst_v5,residual_diff,"residual",create_fig_EN,export_fig_EN);
 [output_diff_season] = ersst_single_station_graph(ersst_v5,season_diff,"season",create_fig_EN,export_fig_EN);
+close all;
+[output_diff_trend] = ersst_single_station_graph(ersst_v5,trend_diff,"trend",create_fig_EN,export_fig_EN);
 [output_diff_residual_mean] = ersst_single_station_graph(ersst_v5,residual_mean_diff,"residual_mean",create_fig_EN,export_fig_EN);
+close all;
+
+%% Create fig. : SST increment (100 yrs), M-2 annual cycle ampl., M-2 residual std.var
+
+lon = season_mean.lon;
+lat = season_mean.lat;
+avg_interval = 20*12; % [month]
+time_inc = 100*12;    % [month]
+data1 = mean(ersst_v5.raw(:,:,end-avg_interval+1:end) - ersst_v5.raw(:,:,end-time_inc-avg_interval+1:end-time_inc),3,"omitnan");
+data2 = cellfun(@(x) max(x,[],"omitnan")-min(x,[],"omitnan"),ersst_v5.M2.season);
+title1 = sprintf("\\bf SST increment (100 years)");
+title2 = sprintf("\\bf peak-peak value of annual cycle (M-2)");
+%
+[max_val,I] = max(data1,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data1),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+max_loc_str = lat_str + " " + lon_str;
+[min_val,I] = min(data1,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data1),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+min_loc_str = lat_str + " " + lon_str;
+log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+if any(~isfinite(log10_scale))
+    log10_scale = 0;
+end
+unit_name1 = sprintf("SST increment (100 years) (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+%
+[max_val,I] = max(data2,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data2),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+max_loc_str = lat_str + " " + lon_str;
+[min_val,I] = min(data2,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data2),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+min_loc_str = lat_str + " " + lon_str;
+log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+if any(~isfinite(log10_scale))
+    log10_scale = 0;
+end
+unit_name2 = sprintf("peak-peak value of annual cycle (M-2) (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+%
+filename = sprintf("ersst_v5\\ersst_v5_SST_inc_and_ampl_of_annual_cycle_M2");
+%     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
+m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
+
+%% Create figure: mean and Std.Var of residual (M-2)
+
+lon = season_mean.lon;
+lat = season_mean.lat;
+data1 = cellfun(@(x) std(x,0,"omitnan"), ersst_v5.M2.residual);
+data2 = cell2mat(ersst_v5.M2.res_mean);
+title1 = sprintf("\\bf Residual (M-2)");
+title2 = title1;
+%
+[max_val,I] = max(data1,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data1),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+max_loc_str = lat_str + " " + lon_str;
+[min_val,I] = min(data1,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data1),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+min_loc_str = lat_str + " " + lon_str;
+log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+if any(~isfinite(log10_scale))
+    log10_scale = 0;
+end
+unit_name1 = sprintf("Std.Var. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+%
+[max_val,I] = max(data2,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data2),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+max_loc_str = lat_str + " " + lon_str;
+[min_val,I] = min(data2,[],"all","omitnan");
+[lon_ind, lat_ind] = ind2sub(size(data2),I);
+[lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+min_loc_str = lat_str + " " + lon_str;
+log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+if any(~isfinite(log10_scale))
+    log10_scale = 0;
+end
+unit_name2 = sprintf("Avg. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+%
+filename = sprintf("ersst_v5\\ersst_v5_res_std_and_mean_M2");
+%     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
+m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 
 %% Create figure: mean of annual cycle (season) and residual
 
@@ -138,12 +238,41 @@ for method_name = season_mean.method_name
     data2 = residual_mean.(method_name).data;
     title1 = sprintf("\\bf %s: Mean of annual cycle (seasonal component) and residual",METHOD_DISP_NAME(METHOD_NAME == method_name));
     title2 = title1;
-    unit_name1 = "Mean of seasonal component (°C)";
-    unit_name2 = "Mean of residual (°C)";
+    %
+    [max_val,I] = max(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name1 = sprintf("Mean of seasonal component (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
+    [max_val,I] = max(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name2 = sprintf("Mean of residual (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
     filename = sprintf("ersst_v5\\ersst_v5_%s_mean_season_residual",METHOD_DISP_NAME(METHOD_NAME == method_name));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 end
+
+close all;
 
 %% Create figure: CVE, EV, RMSE, CC
 
@@ -156,8 +285,31 @@ for i = 1:length(METHOD_NAME)
     data2 = cell2mat(ersst_v5.(method_name).cm2raw_EV)*100;
     title1 = sprintf("\\bf %s: Climatological mean to raw series",METHOD_DISP_NAME(i));
     title2 = title1;
-    unit_name1 = "Cross-validated RMSE (°C)";
-    unit_name2 = "Variance Explained (%)";
+    %
+    [max_val,I] = max(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name1 = sprintf("Cross-validated RMSE (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
+    [max_val,I] = max(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    unit_name2 = sprintf("Variance Explained (%%)\n[%.3g, %.3g], %s, %s",min_val,max_val,min_loc_str,max_loc_str);
+    %
     filename = sprintf("ersst_v5\\ersst_v5_%s_cm2raw_CVE_EV",METHOD_DISP_NAME(i));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
@@ -169,12 +321,37 @@ for i = 1:length(METHOD_NAME)
     data2 = cell2mat(ersst_v5.(method_name).cm2raw_CC);
     title1 = sprintf("\\bf %s: Climatological mean to raw series", METHOD_DISP_NAME(i));
     title2 = title1;
-    unit_name1 = "RMSE (°C)";
-    unit_name2 = "Corr. Coeff.";
+    %
+    [max_val,I] = max(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name1 = sprintf("RMSE (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
+    [max_val,I] = max(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    unit_name2 = sprintf("Corr. Coeff.\n[%.3g, %.3g], %s, %s",min_val,max_val,min_loc_str,max_loc_str);
+    %
     filename = sprintf("ersst_v5\\ersst_v5_%s_cm2raw_RMSE_CC",METHOD_DISP_NAME(i));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 end
+
+close all;
 
 %% Create figure: Diff. between method: aunnal cycle, residual
 
@@ -190,8 +367,35 @@ for i = 1:length(season_diff.method_name)
     data2 = season_diff.(field_name).min;
     title1 = sprintf("\\bf Annual cycle: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
     title2 = title1;
-    unit_name1 = "Max. (°C)";
-    unit_name2 = "Min. (°C)";
+    %
+    [max_val,I] = max(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name1 = sprintf("Max. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
+    [max_val,I] = max(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name2 = sprintf("Min. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
     filename = sprintf("ersst_v5\\ersst_v5_%s_minus_%s_season",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
@@ -201,12 +405,41 @@ for i = 1:length(season_diff.method_name)
     data2 = residual_diff.(field_name).min;
     title1 = sprintf("\\bf Residual: %s minus %s",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
     title2 = title1;
-    unit_name1 = "Max. (°C)";
-    unit_name2 = "Min. (°C)";
+    %
+    [max_val,I] = max(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data1,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data1),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name1 = sprintf("Max. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
+    [max_val,I] = max(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    max_loc_str = lat_str + " " + lon_str;
+    [min_val,I] = min(data2,[],"all","omitnan");
+    [lon_ind, lat_ind] = ind2sub(size(data2),I);
+    [lat_str,lon_str] = lat_lon2str(lat(lat_ind),lon(lon_ind));
+    min_loc_str = lat_str + " " + lon_str;
+    log10_scale = floor(min(log10(abs([min_val,max_val])),[],"omitnan"));
+    if any(~isfinite(log10_scale))
+        log10_scale = 0;
+    end
+    unit_name2 = sprintf("Min. (°C)\n[%.3g, %.3g]*1e%d, %s, %s",min_val*10^(-log10_scale),max_val*10^(-log10_scale),log10_scale,min_loc_str,max_loc_str);
+    %
     filename = sprintf("ersst_v5\\ersst_v5_%s_minus_%s_residual",METHOD_DISP_NAME(METHOD_NAME==method_name),METHOD_DISP_NAME(METHOD_NAME==ref_method_name));
 %     global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
     m_global_map(lon,lat,data1,data2,title1,title2,unit_name1,unit_name2,filename,export_fig_EN);
 end
+
+close all;
 
 %% local functions
 
@@ -629,8 +862,6 @@ function [output_diff] = ersst_single_station(ersst_v5,lon,lat,m_1_name,m_ref_na
     star_str = "";
     if strcmpi(star_component_name,"season")
         star_str = "*";
-    else
-        star_str = "";
     end
     t_axes = nexttile(t_TCL,4);
     % plot(t_axes,t,x.raw-x.trend,'-',"DisplayName",'ideal detrended');
@@ -709,6 +940,11 @@ function [lat_str,lon_str] = lat_lon2str(lat,lon)
         lon = 190; % [deg E]
     end
 
+    if nargin < 2
+        lon = lat(2);
+        lat = lat(1);
+    end
+    
     if lat > 0 && lat <= 90
         lat_str = num2str(lat)+"°N";
     elseif lat < 0
