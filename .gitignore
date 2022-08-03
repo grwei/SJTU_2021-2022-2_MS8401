@@ -6,6 +6,8 @@ project/inc/CDT-master/cdt/cdt_data
 ~$*.doc*
 project/bin
 project/doc/fig
+project/doc/课程项目_危国锐.docx
+project/doc/课程项目_危国锐.pdf
 
 # Prerequisites
 *.d

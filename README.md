@@ -16,7 +16,7 @@
 
 - [`report.pdf`](project/doc/report.pdf)
   - [`test0.m`](project/src/test0.m)
-- [Course project](project/doc/课程项目_危国锐.pdf)
+- [Course project](project/doc/课程项目_危国锐_small.pdf)
 
 ## Resources
 
